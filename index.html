@@ -15,22 +15,32 @@
   <pre id="result"></pre>
 
   <script>
-    async function login() {
-      const res = await fetch(
-        "https://hackth0n-webs1te.vercel.app/api/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: username.value,
-            password: password.value
-          })
-        }
-      );
+    const BACKEND_DOMAIN = "https://【你的後端vercel專案】.vercel.app";
 
-      const data = await res.json();
-      document.getElementById("result").textContent =
-        JSON.stringify(data, null, 2);
+    async function login() {
+      try {
+        const res = await fetch(
+          `${BACKEND_DOMAIN}/api/login`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              username: document.getElementById("username").value,
+              password: document.getElementById("password").value
+            })
+          }
+        );
+
+        const data = await res.json();
+        document.getElementById("result").textContent =
+          JSON.stringify(data, null, 2);
+
+      } catch (err) {
+        document.getElementById("result").textContent =
+          "Fetch error: " + err.message;
+      }
     }
   </script>
 
