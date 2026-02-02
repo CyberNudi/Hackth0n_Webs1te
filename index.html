@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
+  <title>Admin Login</title>
 </head>
 <body>
 
@@ -18,21 +18,33 @@
 <p id="result">---</p>
 
 <script>
+/* ===== 固定設定（唯一需要知道的後端資訊） ===== */
+
 const LOGIN_API =
   "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/smooth-function";
 
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_O9X0jWisuBrDhTvMSQ_HEw_Umk3ROu5";
+
+/* ===== 登入邏輯 ===== */
+
 document.getElementById("loginBtn").onclick = async () => {
-  document.getElementById("result").innerText = "請求中…";
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  document.getElementById("result").innerText = "登入中…";
 
   try {
     const res = await fetch(LOGIN_API, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_PUBLISHABLE_KEY,
+        "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY
       },
       body: JSON.stringify({
-        username: document.getElementById("username").value,
-        password: document.getElementById("password").value
+        username,
+        password
       })
     });
 
@@ -43,15 +55,17 @@ document.getElementById("loginBtn").onclick = async () => {
 
     const data = JSON.parse(text);
 
-    if (data.ok) {
+    if (data.ok === true) {
       document.getElementById("result").innerText = "登入成功";
+      // 成功後你可以在這裡導頁
+      // window.location.href = "puzzle.html";
     } else {
       document.getElementById("result").innerText = "登入失敗";
     }
 
   } catch (err) {
     console.error(err);
-    document.getElementById("result").innerText = "JS 錯誤，請看 Console";
+    document.getElementById("result").innerText = "前端錯誤，請看 Console";
   }
 };
 </script>
