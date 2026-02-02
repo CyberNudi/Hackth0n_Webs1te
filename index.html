@@ -18,15 +18,15 @@
 <p id="result">---</p>
 
 <script>
-/* ===== 固定設定（唯一需要知道的後端資訊） ===== */
+/* ===== Supabase 設定（唯一必要資訊） ===== */
 
 const LOGIN_API =
   "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/smooth-function";
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_O9X0jWisuBrDhTvMSQ_HEw_Umk3ROu5";
+const SUPABASE_ANON_JWT =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliY2RqaXpvbmZkaG1ieGd3ZGZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5MjU5MDcsImV4cCI6MjA4NTUwMTkwN30.LwaQ1MivIORu7xc3MEpJWAVP0s1aLdZEv1KuydaaCgk";
 
-/* ===== 登入邏輯 ===== */
+/* ===== 登入流程 ===== */
 
 document.getElementById("loginBtn").onclick = async () => {
   const username = document.getElementById("username").value;
@@ -39,8 +39,8 @@ document.getElementById("loginBtn").onclick = async () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "apikey": SUPABASE_PUBLISHABLE_KEY,
-        "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY
+        "Authorization": "Bearer " + SUPABASE_ANON_JWT,
+        "apikey": SUPABASE_ANON_JWT
       },
       body: JSON.stringify({
         username,
@@ -57,14 +57,12 @@ document.getElementById("loginBtn").onclick = async () => {
 
     if (data.ok === true) {
       document.getElementById("result").innerText = "登入成功";
-      // 成功後你可以在這裡導頁
-      // window.location.href = "puzzle.html";
     } else {
       document.getElementById("result").innerText = "登入失敗";
     }
 
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    console.error(e);
     document.getElementById("result").innerText = "前端錯誤，請看 Console";
   }
 };
