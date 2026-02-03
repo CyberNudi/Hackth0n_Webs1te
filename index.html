@@ -28,31 +28,24 @@
 
     .login-box {
       background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px); 
-      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       padding: 40px;
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
       width: 320px;
       text-align: center;
-      box-sizing: border-box;
     }
 
     .login-box h2 {
       margin-bottom: 30px;
       color: #fff;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     .login-box input {
       width: 100%;
-      padding: 12px 15px;
+      padding: 12px;
       margin: 10px 0;
       border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.9);
-      outline: none;
+      border: none;
       box-sizing: border-box;
     }
 
@@ -64,21 +57,12 @@
       color: #fff;
       border: none;
       border-radius: 8px;
-      font-size: 16px;
       cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s;
-    }
-
-    .login-box button:hover {
-      background: #00f2fe;
-      transform: scale(1.02);
     }
 
     #result {
       margin-top: 15px;
       font-weight: bold;
-      color: #ff4d4d;
     }
   </style>
 </head>
@@ -87,63 +71,58 @@
   <div class="bg-test">
     <div class="login-box">
       <h2>Admin Login</h2>
+
+      <!-- 帳號/密碼輸入 -->
       <input id="username" type="text" placeholder="Username">
       <input id="password" type="password" placeholder="Password">
-      <input id="stage_code" type="hidden" value="login">
-      <input id="token" type="hidden">
+
       <button id="loginBtn">Login</button>
       <p id="result">---</p>
     </div>
   </div>
 
   <script>
-    // 直接寫死 Supabase 設定
     const SUPABASE_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliY2RqaXpvbmZkaG1ieGd3ZGZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5MjU5MDcsImV4cCI6MjA4NTUwMTkwN30.LwaQ1MivIORu7xc3MEpJWAVP0s1aLdZEv1KuydaaCgk";
-    const ISSUE_HASH_API = `${SUPABASE_URL}/functions/v1/Hackthon_Auth`;
+    const LOGIN_API = `${SUPABASE_URL}/functions/v1/Hackthon_Auth`;
 
-    // 產生隨機六位數亂碼
+    // 產生六位英數 token
     function generateToken(length = 6) {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      let result = '';
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let t = "";
       for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+        t += chars[Math.floor(Math.random() * chars.length)];
       }
-      return result;
+      return t;
     }
 
     document.getElementById("loginBtn").onclick = async () => {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-      const stage_code = document.getElementById("stage_code");
-      const token = document.getElementById("token");
       const result = document.getElementById("result");
-
-      // 設定 stage_code 與 token
-      stage_code.value = "login";
-      token.value = generateToken();
 
       if (!username || !password) {
         result.style.color = "#ff4d4d";
-        result.textContent = "請填入所有欄位";
+        result.textContent = "請輸入帳號與密碼";
         return;
       }
+
+      const token = generateToken();
 
       result.style.color = "#ffff00";
       result.textContent = "Processing...";
 
       try {
-        const res = await fetch(ISSUE_HASH_API, {
+        const res = await fetch(LOGIN_API, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}` 
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
           },
           body: JSON.stringify({
             username,
             password,
-            stage_code: stage_code.value,
-            token: token.value
+            token
           })
         });
 
@@ -151,20 +130,24 @@
 
         if (data.ok === true) {
           result.style.color = "#00ff00";
-          result.textContent = `Success! Hash: ${data.hash}`;
-          // 下一步可以把 hash 存 localStorage 或帶到下一頁
-          // localStorage.setItem("AUTH_HASH", data.hash);
+          result.textContent = "LoginSuccess";
+
+          // 下一步行為（保留註解）
+          // 可以把 token 或 hash 存 localStorage
+          // localStorage.setItem("AUTH_TOKEN", token);
           // window.location.href = "puzzle.html";
+
         } else {
           result.style.color = "#ff4d4d";
-          result.textContent = "Login Failed: " + (data.error || "");
+          result.textContent = data.error || "Login Failed";
         }
+
       } catch (err) {
-        console.error(err);
         result.style.color = "#ff4d4d";
         result.textContent = "Connection Error";
       }
     };
   </script>
+
 </body>
 </html>
