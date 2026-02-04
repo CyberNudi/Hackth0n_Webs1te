@@ -110,16 +110,6 @@
         return false;
       }
     }
-
-    // ===== Hash 計算 =====
-    async function getHash(username, answer, token) {
-      const raw = `${username}:${answer}:${token}`;
-      const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
-      return Array.from(new Uint8Array(buffer))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
-    }
-
     // ===== 初始化頁面 =====
     (async () => {
       const ok = await authorizePage();
