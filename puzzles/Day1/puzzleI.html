@@ -77,6 +77,7 @@
   </div>
 
   <script>
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliY2RqaXpvbmZkaG1ieGd3ZGZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5MjU5MDcsImV4cCI6MjA4NTUwMTkwN30.LwaQ1MivIORu7xc3MEpJWAVP0s1aLdZEv1KuydaaCgk";
     const SUPABASE_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co";
     const AUTH_API = `${SUPABASE_URL}/functions/v1/AuthWebsite`;
     const ANSWER_API = `${SUPABASE_URL}/functions/v1/CheckAnswer`;
@@ -100,10 +101,13 @@
       if (!username || !token) return false;
       try {
         const res = await fetch(AUTH_API, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username,token,PUZZLE_CODE })
-        });
+		  method: "POST",
+		  headers: {
+			"Content-Type": "application/json",
+			"Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+		  },
+		  body: JSON.stringify({ username, token, PUZZLE_CODE })
+		});
         const data = await res.json();
         return data.ok === true;
       } catch {
