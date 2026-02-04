@@ -172,7 +172,7 @@
           const data = await res.json();
           if (data.ok) {
             result.style.color = "#00ff00";
-            result.textContent = data.correct ? `Correct! +${data.gainedScore} pts` : "Incorrect!";
+            result.textContent = data.isCorrect ? `Correct!` : "Incorrect!";
           } else {
             result.style.color = "#ff4d4d";
             result.textContent = data.error || "Error submitting answer";
