@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Part of Background</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background-color: #000;
+      overflow: hidden;
+    }
+
+    .bg-test {
+      width: 100vw;
+      height: 100vh;
+      background-image: url(https://cybernudi.github.io/Hackth0n_Webs1te/Label.png);
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box {
+      display: none;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      width: 320px;
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 30px;
+      color: #fff;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      box-sizing: border-box;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background: #4facfe;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-test">
+  <div class="login-box" id="loginBox">
+    <h2>Admin Login</h2>
+    <input id="username" type="text" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button id="loginBtn">Login</button>
+    <p id="result">---</p>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliY2RqaXpvbmZkaG1ieGd3ZGZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5MjU5MDcsImV4cCI6MjA4NTUwMTkwN30.LwaQ1MivIORu7xc3MEpJWAVP0s1aLdZEv1KuydaaCgk";
+
+const LOGIN_API = `${SUPABASE_URL}/functions/v1/Hackthon_Auth`;
+const D2ENTRY_API = `${SUPABASE_URL}/functions/v1/D2Entry`;
+
+// ===== URL token =====
+function getEntryToken() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("token");
+}
+
+// ===== 授權 =====
+async function authorizePage(entryToken) {
+  if (!entryToken) return false;
+
+  try {
+    const res = await fetch(D2ENTRY_API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ token: entryToken })
+    });
+
+    const data = await res.json();
+    return data.ok === true;
+  } catch {
+    return false;
+  }
+}
+
+// ===== SHA256 =====
+async function getHash(username, answer, token) {
+  const raw = `${username}|${answer}|${token}`;
+  const data = new TextEncoder().encode(raw);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(hashBuffer)]
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+// ===== token 產生 =====
+function generateToken(length = 6) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
+// ===== 主流程 =====
+document.addEventListener("DOMContentLoaded", async () => {
+  const entryToken = getEntryToken();
+  const loginBox = document.getElementById("loginBox");
+  const result = document.getElementById("result");
+
+  const allowed = await authorizePage(entryToken);
+  if (!allowed) {
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+    return;
+  }
+
+  loginBox.style.display = "block";
+  result.textContent = "Token Verified";
+
+  document.getElementById("loginBtn").onclick = async () => {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!username || !password) {
+      result.style.color = "#ff4d4d";
+      result.textContent = "請輸入帳號與密碼";
+      return;
+    }
+
+    const loginToken = generateToken();
+	const loginAnswer = "login";
+    result.style.color = "#ffff00";
+    result.textContent = "Processing...";
+
+    try {
+      const res = await fetch(LOGIN_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({ username, password, token: loginToken, answer: loginAnswer})
+      });
+
+      const data = await res.json();
+
+      if (data.ok === true) {
+        const hash = await getHash(username, "login", loginToken);
+        const url = `puzzletest.html?username=${encodeURIComponent(username)}&token=${encodeURIComponent(loginToken)}&hash=${encodeURIComponent(hash)}`;
+        window.location.href = url;
+      } else {
+        result.style.color = "#ff4d4d";
+        result.textContent = "Login Failed";
+      }
+    } catch {
+      result.style.color = "#ff4d4d";
+      result.textContent = "Connection Error";
+    }
+  };
+});
+</script>
+
+</body>
+</html>
