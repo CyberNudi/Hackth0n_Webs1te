@@ -57,25 +57,41 @@
       color: #ff4d4d;
       font-size: 14px;
     }
+    .bg {
+    width: 100vw;
+    height: 100vh;
+
+    background-image:
+      linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+      url(https://cybernudi.github.io/Hackth0n_Webs1te/Label.png); 
+
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   </style>
 </head>
 <body>
+  <div class="bg">
+    <div class="container" id="main-container">
+      <h2>Puzzle Download</h2>
+      <a id="downloadBtn" href="puzzle_file.txt" download>
+        <button>Download Puzzle</button>
+      </a>
 
-  <div class="container" id="main-container">
-    <h2>Puzzle Download</h2>
-    <a id="downloadBtn" href="puzzle_file.txt" download>
-      <button>Download Puzzle</button>
-    </a>
-
-    <div style="margin-top:20px;">
-      <input id="answerInput" type="text" placeholder="Enter your answer">
-      <button id="submitAnswer">Submit Answer</button>
-    </div>
+      <div style="margin-top:20px;">
+        <input id="answerInput" type="text" placeholder="Enter your answer">
+        <button id="submitAnswer">Submit Answer</button>
+      </div>
     
-    <p id="result">---</p>
-    <p id="pathError"></p>
+      <p id="result">---</p>
+      <p id="pathError"></p>
+    </div>
   </div>
-
   <script>
     const SUPABASE_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co";
     const AUTH_API = `${SUPABASE_URL}/functions/v1/AuthWebsite`;
@@ -178,3 +194,4 @@
   </script>
 </body>
 </html>
+
