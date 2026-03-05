@@ -1,4 +1,13 @@
 // Common helpers shared across puzzle pages.
+
+//資料夾網址資訊
+const PUZZLE_CONFIG = {
+  1: "1lw_hfqBiwkp7Hm9kSeCE2A_9eZvk4nh7",
+  2: "資料夾ID_2",
+  3: "資料夾ID_3"
+};
+
+
 function getUrlParams() {
   const params = new URLSearchParams(window.location.search);
   return {
@@ -37,3 +46,17 @@ function generateToken(length = 6) {
   }
   return t;
 }
+
+//控制下載
+const GAS_DOWNLOAD_URL = "https://script.google.com/macros/s/AKfycbw4nER0Cqjbsd7VkaIR1ymdG-0ubALRK9C4kr4JogW60BqtazLBuAPTkFplPeXH3_DL/exec";
+window.onload = function() {
+    const folderId = PUZZLE_CONFIG[PUZZLE_CODE];
+    if (!folderId) return;
+
+    const downloadBtn = document.getElementById("downloadBtn");
+    if (downloadBtn) {
+        downloadBtn.onclick = () => {
+            window.open(`${GAS_DOWNLOAD_URL}?id=${folderId}`, '_blank');
+        };
+    }
+};
