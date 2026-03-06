@@ -66,8 +66,10 @@ function enableDownload(levelCode) {
     const folderId = PUZZLE_CONFIG[levelCode];
     const downloadBtn = document.getElementById("downloadBtn");
     if (downloadBtn && folderId) { // 解鎖按鈕
+        downloadBtn.style.display = "inline-block";
         downloadBtn.disabled = false;
         downloadBtn.style.opacity = "1";
+        downloadBtn.style.pointerEvents = "auto";
         downloadBtn.style.cursor = "pointer";
         downloadBtn.textContent = "Download Puzzle";
 
