@@ -60,16 +60,19 @@ function generateToken(length = 6) {
   return t;
 }
 
-//控制下載
+// 定義下載功能，但不自動執行
 const GAS_DOWNLOAD_URL = "https://script.google.com/macros/s/AKfycbw4nER0Cqjbsd7VkaIR1ymdG-0ubALRK9C4kr4JogW60BqtazLBuAPTkFplPeXH3_DL/exec";
-window.onload = function() {
-    const folderId = PUZZLE_CONFIG[PUZZLE_CODE];
-    if (!folderId) return;
-
+function enableDownload(levelCode) {
+    const folderId = PUZZLE_CONFIG[levelCode];
     const downloadBtn = document.getElementById("downloadBtn");
-    if (downloadBtn) {
+    if (downloadBtn && folderId) { // 解鎖按鈕
+        downloadBtn.disabled = false;
+        downloadBtn.style.opacity = "1";
+        downloadBtn.style.cursor = "pointer";
+        downloadBtn.textContent = "Download Puzzle";
+
         downloadBtn.onclick = () => {
             window.open(`${GAS_DOWNLOAD_URL}?id=${folderId}`, '_blank');
         };
     }
-};
+}

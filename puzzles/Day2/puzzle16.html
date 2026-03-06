@@ -43,6 +43,7 @@
         pathError.textContent = "Incorrect Path";
       } else {
         pathError.textContent = "授權成功";
+        enableDownload(PUZZLE_CODE);
       }
 
       document.getElementById("submitAnswer").onclick = async () => {
