@@ -62,6 +62,19 @@ function generateToken(length = 6) {
 
 // 定義下載功能，但不自動執行
 const GAS_DOWNLOAD_URL = "https://script.google.com/macros/s/AKfycbw4nER0Cqjbsd7VkaIR1ymdG-0ubALRK9C4kr4JogW60BqtazLBuAPTkFplPeXH3_DL/exec";
+function lockDownloadButton(message = "Download Locked") {
+    const downloadBtn = document.getElementById("downloadBtn");
+    if (!downloadBtn) return;
+
+    downloadBtn.style.display = "inline-block";
+    downloadBtn.disabled = true;
+    downloadBtn.style.opacity = "1";
+    downloadBtn.style.pointerEvents = "none";
+    downloadBtn.style.cursor = "not-allowed";
+    downloadBtn.textContent = message;
+    downloadBtn.onclick = null;
+}
+
 function enableDownload(levelCode) {
     const folderId = PUZZLE_CONFIG[levelCode];
     const downloadBtn = document.getElementById("downloadBtn");
@@ -78,3 +91,5 @@ function enableDownload(levelCode) {
         };
     }
 }
+
+lockDownloadButton();
