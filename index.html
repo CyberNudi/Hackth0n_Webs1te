@@ -122,9 +122,14 @@ document.getElementById("loginBtn").onclick = async () => {
         // 成功登入
         if (data.ok === true) {
 
-            localStorage.setItem("user", JSON.stringify(data));
+            // 🔐 存整包 user（重點）
+            localStorage.setItem("user", JSON.stringify({
+                username: data.username || username,
+                ...data
+            }));
 
-            location.href = `./puzzles/Levels.html?username=${encodeURIComponent(username)}`;
+            // 🚀 直接進關卡頁
+            location.href = "./puzzles/Levels.html";
 
             return;
         }
