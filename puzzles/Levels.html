@@ -175,7 +175,7 @@ button:hover{
         <input placeholder="輸入答案">
 
         <div class="btn-row">
-            <button class="small-btn">Enter</button>
+            <button id="submitBtn" class="small-btn">Enter</button>
             <button class="small-btn" onclick="closeModal()">關閉</button>
         </div>
     </div>
@@ -424,7 +424,7 @@ function logout() {
 // ===============================
 // events
 // ===============================
-document.querySelector(".small-btn").onclick = submitAnswer;
+document.getElementById("submitBtn").onclick = submitAnswer;
 
 document.querySelector(".modal-content input").addEventListener("keydown", (e) => {
     if (e.key === "Enter") submitAnswer();
