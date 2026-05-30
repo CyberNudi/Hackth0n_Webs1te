@@ -7,7 +7,6 @@
 <style>
 :root{
     --bg:#070907;
-    --card:#101410;
     --line:#2b442b;
     --green:#6bff4d;
     --text:#f5f5f5;
@@ -32,7 +31,7 @@ body{
     padding:40px;
 }
 
-/* 🔥 右上角 HUD */
+/* HUD */
 .hud{
     position:fixed;
     top:20px;
@@ -41,44 +40,34 @@ body{
     border:1px solid var(--line);
     border-radius:12px;
     padding:12px 16px;
-    backdrop-filter:blur(8px);
     font-size:14px;
-    line-height:1.6;
-    box-shadow:0 0 25px rgba(0,0,0,.4);
 }
 
-/* 標題 */
-h1{
-    text-align:center;
-    margin-bottom:25px;
-}
-
-/* 進度文字 */
-#progress{
-    text-align:center;
-    margin-bottom:25px;
+/* 區塊標題 */
+.section-title{
+    margin:20px 0 10px;
+    font-size:18px;
     color:#cfcfcf;
 }
 
-/* 關卡格子 */
+/* grid */
 .levels{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
     gap:15px;
+    margin-bottom:20px;
 }
 
-/* 按鈕風格同步 Login */
+/* button */
 button{
     padding:15px;
     font-size:16px;
     border:none;
     border-radius:10px;
     font-weight:bold;
-
     background:rgba(20,25,20,.9);
     border:1px solid var(--line);
     color:var(--text);
-
     cursor:pointer;
     transition:.2s;
 }
@@ -88,65 +77,162 @@ button:hover{
     color:#000;
     transform:translateY(-2px);
 }
-</style>
 
+/* divider */
+.divider{
+    height:1px;
+    background:#2b442b;
+    margin:30px 0;
+}
+
+/* logout */
+.logout{
+    margin-top:40px;
+    width:100%;
+    background:#1a1f1a;
+}
+
+/* modal */
+.modal{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.6);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    width:320px;
+    background:#101410;
+    border:1px solid var(--line);
+    padding:20px;
+    border-radius:12px;
+}
+
+.modal-content h2{
+    margin-bottom:15px;
+}
+
+.modal-content input{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    background:#151915;
+    border:1px solid #334433;
+    color:white;
+    border-radius:8px;
+}
+
+.modal-content .btn-row{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.small-btn{
+    flex:1;
+    padding:10px;
+    font-size:14px;
+}
+</style>
 </head>
 
 <body>
 
-<!-- 🧭 右上角資訊 -->
+<!-- HUD -->
 <div class="hud">
     <div>ID: <span id="username">---</span></div>
     <div>Day1：0/7</div>
-    <div>Day2：0/7</div>
+    <div>Day2：0/9</div>
 </div>
 
 <h1>關卡選擇</h1>
-<h3 id="progress"></h3>
 
-<div class="levels" id="levelContainer"></div>
+<!-- DAY 1 -->
+<div class="section-title">第一天</div>
+<div class="levels" id="day1"></div>
+
+<div class="divider"></div>
+
+<!-- DAY 2 -->
+<div class="section-title">第二天</div>
+<div class="levels" id="day2"></div>
+
+<!-- 登出 -->
+<button class="logout" onclick="logout()">登出</button>
+
+<!-- modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h2 id="modalTitle">關卡</h2>
+
+        <button class="small-btn">下載</button>
+
+        <input placeholder="輸入答案">
+
+        <div class="btn-row">
+            <button class="small-btn">Enter</button>
+            <button class="small-btn" onclick="closeModal()">關閉</button>
+        </div>
+    </div>
+</div>
 
 <script>
 
-// 🔐 讀取登入資料
+// 🔐 user
 const user = JSON.parse(localStorage.getItem("user") || "{}");
-console.log("raw user:", localStorage.getItem("user"));
-console.log("parsed user:", JSON.parse(localStorage.getItem("user") || "{}"));
-// ❌ 沒登入直接回去
+
 if(!user.username){
     location.href = "../index.html";
 }
 
-// 👤 顯示 username
 document.getElementById("username").innerText = user.username;
 
-// 📊 關卡資料
-const levels = [
-    { name:"第一關", url:"level1.html" },
-    { name:"第二關", url:"level2.html" },
-    { name:"第三關", url:"level3.html" }
-];
+// 🎮 關卡拆分
+const day1Levels = Array.from({length:7}, (_,i)=>({
+    name:`第${i+1}關`,
+    id:i+1
+}));
 
-// 📈 進度
-let solved = Number(localStorage.getItem("solvedCount") || 0);
+const day2Levels = Array.from({length:9}, (_,i)=>({
+    name:`第${i+8}關`,
+    id:i+8
+}));
 
-document.getElementById("progress").innerText =
-`進度：${solved}/${levels.length}`;
-
-// 🎮 生成按鈕
-const container = document.getElementById("levelContainer");
-
-levels.forEach(level => {
-
+function createLevel(btnContainer, level){
     const btn = document.createElement("button");
     btn.innerText = level.name;
 
-    btn.onclick = () => {
-        window.location.href = level.url;
-    };
+    btn.onclick = () => openModal(level.name);
 
-    container.appendChild(btn);
-});
+    btnContainer.appendChild(btn);
+}
+
+day1Levels.forEach(l => createLevel(document.getElementById("day1"), l));
+day2Levels.forEach(l => createLevel(document.getElementById("day2"), l));
+
+// 📦 modal
+const modal = document.getElementById("modal");
+const modalTitle = document.getElementById("modalTitle");
+
+function openModal(title){
+    modal.style.display = "flex";
+    modalTitle.innerText = title;
+}
+
+function closeModal(){
+    modal.style.display = "none";
+}
+
+// 🚪 logout
+function logout(){
+    localStorage.removeItem("user");
+    location.href = "../index.html";
+}
 
 </script>
 
