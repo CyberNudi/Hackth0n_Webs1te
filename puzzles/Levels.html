@@ -110,7 +110,8 @@ button:hover{
 
 // 🔐 讀取登入資料
 const user = JSON.parse(localStorage.getItem("user") || "{}");
-
+console.log("raw user:", localStorage.getItem("user"));
+console.log("parsed user:", JSON.parse(localStorage.getItem("user") || "{}"));
 // ❌ 沒登入直接回去
 if(!user.username){
     location.href = "../index.html";
