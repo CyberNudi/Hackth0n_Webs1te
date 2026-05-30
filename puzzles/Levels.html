@@ -107,15 +107,16 @@ button:hover{
 <div class="levels" id="levelContainer"></div>
 
 <script>
-
-const user = JSON.parse(localStorage.getItem("user") || "{}");
+    
+const params = new URLSearchParams(window.location.search);
+const urlUsername = params.get("username");
 
 // 🔐 沒登入直接踢回
-if(!user || !user.username){
-    location.href = "login.html";
+if(!urlUsername){
+    location.href = "../login.html";
 }
 
-document.getElementById("username").innerText = user.username || "Unknown";
+document.getElementById("username").innerText = urlUsername || "Unknown";
 
 const levels = [
     { name:"第一關", url:"level1.html" },
