@@ -124,7 +124,7 @@ document.getElementById("loginBtn").onclick = async () => {
 
             localStorage.setItem("user", JSON.stringify(data));
 
-            location.href = "./puzzles/Levels.html?username=${encodeURIComponent(username)}";
+            location.href = `./puzzles/Levels.html?username=${encodeURIComponent(username)}`;
 
             return;
         }
