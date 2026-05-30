@@ -275,12 +275,21 @@ function getLevelState(level) {
     const timeOK = serverState.time[`day${level.day}`];
     const progress = serverState.progress[`day${level.day}`];
 
-    // 🔵 time lock (最高優先)
+    // 🔵 time gate (highest priority)
     if (!timeOK) return "LOCK";
 
+    // ===============================
+    // Day2 offset fix
+    // ===============================
+    let localIndex = level.id;
+
+    if (level.day === 2) {
+        localIndex = level.id - 7;
+    }
+
     // 🟡 progress logic
-    if (level.id < progress) return "DONE";
-    if (level.id === progress) return "SOLVE";
+    if (localIndex < progress) return "DONE";
+    if (localIndex === progress) return "SOLVE";
 
     return "LOCK";
 }
@@ -289,18 +298,20 @@ function getLevelState(level) {
 // render UI
 // ===============================
 function renderAll() {
-    renderGroup("#day1", day1Levels, 1);
-    renderGroup("#day2", day2Levels, 2);
+    renderGroup("#day1", day1Levels);
+    renderGroup("#day2", day2Levels);
     renderHUD();
 }
 
-function renderGroup(selector, levels, day) {
+function renderGroup(selector, levels) {
     const buttons = document.querySelectorAll(`${selector} button`);
 
     buttons.forEach((btn, idx) => {
+
         const level = levels[idx];
         const state = getLevelState(level);
 
+        // reset
         btn.disabled = false;
         btn.style.opacity = "1";
         btn.style.cursor = "pointer";
@@ -319,6 +330,7 @@ function renderGroup(selector, levels, day) {
         }
 
         if (state === "SOLVE") {
+            btn.disabled = false;
             btn.innerText = level.name;
         }
     });
