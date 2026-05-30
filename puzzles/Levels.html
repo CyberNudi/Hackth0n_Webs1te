@@ -184,10 +184,7 @@ button:hover{
 <script>
 
 const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-if (!user.username) {
-    location.href = "../index.html";
-}
+if (!user.username) location.href = "../index.html";
 
 // ===============================
 // API
@@ -196,7 +193,7 @@ const ACTIVE_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Active
 const ANSWER_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Answer_Checker";
 
 // ===============================
-// state
+// STATE
 // ===============================
 let serverState = {
     time: { day1: false, day2: false },
@@ -211,12 +208,11 @@ let currentLevel = null;
 const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
 const input = modal.querySelector("input");
-const submitBtn = document.getElementById("submitBtn");
 
 // ===============================
-// toast
+// TOAST
 // ===============================
-function showError(msg) {
+function toast(msg) {
     let el = document.getElementById("toast");
 
     if (!el) {
@@ -230,20 +226,18 @@ function showError(msg) {
         el.style.color = "#fff";
         el.style.padding = "10px 16px";
         el.style.borderRadius = "10px";
-        el.style.zIndex = "99999";
+        el.style.zIndex = 99999;
         document.body.appendChild(el);
     }
 
     el.innerText = msg;
     el.style.opacity = "1";
 
-    setTimeout(() => {
-        el.style.opacity = "0";
-    }, 1800);
+    setTimeout(() => el.style.opacity = "0", 1500);
 }
 
 // ===============================
-// fetch state
+// FETCH STATE (核心：時間 + progress)
 // ===============================
 async function fetchState() {
     try {
@@ -262,31 +256,30 @@ async function fetchState() {
         renderAll();
 
     } catch (e) {
-        console.log(e);
+        console.log("fetchState error:", e);
     }
 }
 
 // ===============================
-// levels
+// LEVELS
 // ===============================
 const day1Levels = Array.from({ length: 7 }, (_, i) => ({
-    name: `第${i + 1}關`,
     id: i + 1,
-    day: 1
+    day: 1,
+    name: `第${i + 1}關`
 }));
 
 const day2Levels = Array.from({ length: 9 }, (_, i) => ({
-    name: `第${i + 8}關`,
     id: i + 8,
-    day: 2
+    day: 2,
+    name: `第${i + 8}關`
 }));
 
 // ===============================
-// create buttons
+// CREATE BUTTONS
 // ===============================
 function createLevel(container, level) {
     const btn = document.createElement("button");
-
     btn.innerText = level.name;
 
     btn.onclick = () => {
@@ -304,13 +297,102 @@ day1Levels.forEach(l => createLevel(document.getElementById("day1"), l));
 day2Levels.forEach(l => createLevel(document.getElementById("day2"), l));
 
 // ===============================
-// answer submit (CORE)
+// CORE RULE ENGINE（完整保留你原本邏輯）
+// ===============================
+function getLevelState(level) {
+
+    const timeOK = serverState.time[`day${level.day}`];
+    const progress = serverState.progress[`day${level.day}`];
+
+    // ❗ 時間鎖（最高優先）
+    if (!timeOK) return "LOCK";
+
+    // Day2 offset 修正
+    let localIndex = level.id;
+    if (level.day === 2) localIndex = level.id - 7;
+
+    if (localIndex < progress) return "DONE";
+    if (localIndex === progress) return "SOLVE";
+
+    return "LOCK";
+}
+
+// ===============================
+// RENDER
+// ===============================
+function renderAll() {
+    renderGroup("#day1", day1Levels);
+    renderGroup("#day2", day2Levels);
+    renderHUD();
+}
+
+function renderGroup(selector, levels) {
+
+    const buttons = document.querySelectorAll(`${selector} button`);
+
+    buttons.forEach((btn, i) => {
+
+        const level = levels[i];
+        const state = getLevelState(level);
+
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+
+        if (state === "LOCK") {
+            btn.disabled = true;
+            btn.innerText = "🔒 未開放";
+            btn.style.opacity = "0.4";
+            btn.style.cursor = "not-allowed";
+        }
+
+        if (state === "DONE") {
+            btn.disabled = true;
+            btn.innerText = "✔ 已完成";
+            btn.style.opacity = "0.7";
+        }
+
+        if (state === "SOLVE") {
+            btn.innerText = level.name;
+        }
+    });
+}
+
+// ===============================
+// HUD（完整保留時間鎖顯示）
+// ===============================
+function renderHUD() {
+
+    const d1Total = day1Levels.length;
+    const d2Total = day2Levels.length;
+
+    document.querySelector(".hud").innerHTML = `
+        <div>ID: ${user.username}</div>
+        <div>Day1：${serverState.time.day1 ? serverState.progress.day1 : "未開放"}/${d1Total}</div>
+        <div>Day2：${serverState.time.day2 ? serverState.progress.day2 : "未開放"}/${d2Total}</div>
+    `;
+}
+
+// ===============================
+// MODAL
+// ===============================
+function openModal(title) {
+    modal.style.display = "flex";
+    modalTitle.innerText = title;
+    input.value = "";
+    input.focus();
+}
+
+function closeModal() {
+    modal.style.display = "none";
+}
+
+// ===============================
+// ANSWER SUBMIT（核心）
 // ===============================
 async function submitAnswer() {
 
     const answer = input.value.trim();
-
-    console.log("submit fired", currentLevel, answer);
 
     if (!currentLevel || !answer) return;
 
@@ -328,114 +410,31 @@ async function submitAnswer() {
         const json = await res.json();
 
         if (!json.ok) {
-            showError(json.message || "答案錯誤");
+            toast(json.message || "答案錯誤");
             input.value = "";
             return;
         }
 
-        // correct
+        // 成功 → 最穩版本：直接 reload（符合你原設計）
         location.reload();
 
     } catch (e) {
-        showError("伺服器錯誤");
+        toast("伺服器錯誤");
         input.value = "";
     }
 }
 
 // ===============================
-// bind events (FIXED)
+// EVENTS（不會再綁錯）
 // ===============================
-submitBtn.addEventListener("click", submitAnswer);
+modal.querySelector("button").onclick = submitAnswer;
 
 input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        submitAnswer();
-    }
+    if (e.key === "Enter") submitAnswer();
 });
 
 // ===============================
-// rule engine
-// ===============================
-function getLevelState(level) {
-
-    const timeOK = serverState.time[`day${level.day}`];
-    const progress = serverState.progress[`day${level.day}`];
-
-    if (!timeOK) return "LOCK";
-
-    let localIndex = level.id;
-    if (level.day === 2) localIndex = level.id - 7;
-
-    if (localIndex < progress) return "DONE";
-    if (localIndex === progress) return "SOLVE";
-
-    return "LOCK";
-}
-
-// ===============================
-// render
-// ===============================
-function renderAll() {
-    renderGroup("#day1", day1Levels);
-    renderGroup("#day2", day2Levels);
-    renderHUD();
-}
-
-function renderGroup(selector, levels) {
-    const buttons = document.querySelectorAll(`${selector} button`);
-
-    buttons.forEach((btn, i) => {
-
-        const level = levels[i];
-        const state = getLevelState(level);
-
-        btn.disabled = false;
-
-        if (state === "LOCK") {
-            btn.disabled = true;
-            btn.innerText = "🔒 未開放";
-            btn.style.opacity = "0.4";
-        }
-
-        if (state === "DONE") {
-            btn.disabled = true;
-            btn.innerText = "✔ 已完成";
-            btn.style.opacity = "0.7";
-        }
-
-        if (state === "SOLVE") {
-            btn.innerText = level.name;
-        }
-    });
-}
-
-// ===============================
-// HUD
-// ===============================
-function renderHUD() {
-    document.querySelector(".hud").innerHTML = `
-        <div>ID: ${user.username}</div>
-        <div>Day1：${serverState.time.day1 ? serverState.progress.day1 : "未開放"}/7</div>
-        <div>Day2：${serverState.time.day2 ? serverState.progress.day2 : "未開放"}/9</div>
-    `;
-}
-
-// ===============================
-// modal
-// ===============================
-function openModal(title) {
-    modal.style.display = "flex";
-    modalTitle.innerText = title;
-    input.value = "";
-    input.focus();
-}
-
-function closeModal() {
-    modal.style.display = "none";
-}
-
-// ===============================
-// logout
+// LOGOUT
 // ===============================
 function logout() {
     localStorage.removeItem("user");
