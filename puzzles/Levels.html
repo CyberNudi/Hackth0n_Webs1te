@@ -184,7 +184,12 @@ button:hover{
 <script>
 
 const user = JSON.parse(localStorage.getItem("user") || "{}");
-if (!user.username) location.href = "../index.html";
+
+if (!user.username) {
+    location.href = "../index.html";
+}
+
+document.getElementById("username").innerText = user.username;
 
 // ===============================
 // API
@@ -192,29 +197,16 @@ if (!user.username) location.href = "../index.html";
 const ACTIVE_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Active_Checker";
 const ANSWER_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Answer_Checker";
 
-// ===============================
-// STATE
-// ===============================
 let serverState = {
     time: { day1: false, day2: false },
     progress: { day1: 1, day2: 1 }
 };
 
-let currentLevel = null;
-
 // ===============================
-// DOM
+// toast error UI
 // ===============================
-const modal = document.getElementById("modal");
-const modalTitle = document.getElementById("modalTitle");
-const input = modal.querySelector("input");
-
-// ===============================
-// TOAST
-// ===============================
-function toast(msg) {
+function showError(msg) {
     let el = document.getElementById("toast");
-
     if (!el) {
         el = document.createElement("div");
         el.id = "toast";
@@ -226,18 +218,20 @@ function toast(msg) {
         el.style.color = "#fff";
         el.style.padding = "10px 16px";
         el.style.borderRadius = "10px";
-        el.style.zIndex = 99999;
+        el.style.zIndex = "9999";
         document.body.appendChild(el);
     }
 
     el.innerText = msg;
     el.style.opacity = "1";
 
-    setTimeout(() => el.style.opacity = "0", 1500);
+    setTimeout(() => {
+        el.style.opacity = "0";
+    }, 2000);
 }
 
 // ===============================
-// FETCH STATE (核心：時間 + progress)
+// fetch backend state
 // ===============================
 async function fetchState() {
     try {
@@ -255,33 +249,35 @@ async function fetchState() {
 
         renderAll();
 
-    } catch (e) {
-        console.log("fetchState error:", e);
+    } catch (err) {
+        console.log("fetchState error:", err);
     }
 }
 
 // ===============================
-// LEVELS
+// levels
 // ===============================
 const day1Levels = Array.from({ length: 7 }, (_, i) => ({
+    name: `第${i + 1}關`,
     id: i + 1,
-    day: 1,
-    name: `第${i + 1}關`
+    day: 1
 }));
 
 const day2Levels = Array.from({ length: 9 }, (_, i) => ({
+    name: `第${i + 8}關`,
     id: i + 8,
-    day: 2,
-    name: `第${i + 8}關`
+    day: 2
 }));
 
 // ===============================
-// CREATE BUTTONS
+// modal state
 // ===============================
+let currentLevel = null;
+
 function createLevel(container, level) {
     const btn = document.createElement("button");
-    btn.innerText = level.name;
 
+    btn.innerText = level.name;
     btn.onclick = () => {
         const state = getLevelState(level);
         if (state === "LOCK") return;
@@ -297,101 +293,10 @@ day1Levels.forEach(l => createLevel(document.getElementById("day1"), l));
 day2Levels.forEach(l => createLevel(document.getElementById("day2"), l));
 
 // ===============================
-// CORE RULE ENGINE（完整保留你原本邏輯）
-// ===============================
-function getLevelState(level) {
-
-    const timeOK = serverState.time[`day${level.day}`];
-    const progress = serverState.progress[`day${level.day}`];
-
-    // ❗ 時間鎖（最高優先）
-    if (!timeOK) return "LOCK";
-
-    // Day2 offset 修正
-    let localIndex = level.id;
-    if (level.day === 2) localIndex = level.id - 7;
-
-    if (localIndex < progress) return "DONE";
-    if (localIndex === progress) return "SOLVE";
-
-    return "LOCK";
-}
-
-// ===============================
-// RENDER
-// ===============================
-function renderAll() {
-    renderGroup("#day1", day1Levels);
-    renderGroup("#day2", day2Levels);
-    renderHUD();
-}
-
-function renderGroup(selector, levels) {
-
-    const buttons = document.querySelectorAll(`${selector} button`);
-
-    buttons.forEach((btn, i) => {
-
-        const level = levels[i];
-        const state = getLevelState(level);
-
-        btn.disabled = false;
-        btn.style.opacity = "1";
-        btn.style.cursor = "pointer";
-
-        if (state === "LOCK") {
-            btn.disabled = true;
-            btn.innerText = "🔒 未開放";
-            btn.style.opacity = "0.4";
-            btn.style.cursor = "not-allowed";
-        }
-
-        if (state === "DONE") {
-            btn.disabled = true;
-            btn.innerText = "✔ 已完成";
-            btn.style.opacity = "0.7";
-        }
-
-        if (state === "SOLVE") {
-            btn.innerText = level.name;
-        }
-    });
-}
-
-// ===============================
-// HUD（完整保留時間鎖顯示）
-// ===============================
-function renderHUD() {
-
-    const d1Total = day1Levels.length;
-    const d2Total = day2Levels.length;
-
-    document.querySelector(".hud").innerHTML = `
-        <div>ID: ${user.username}</div>
-        <div>Day1：${serverState.time.day1 ? serverState.progress.day1 : "未開放"}/${d1Total}</div>
-        <div>Day2：${serverState.time.day2 ? serverState.progress.day2 : "未開放"}/${d2Total}</div>
-    `;
-}
-
-// ===============================
-// MODAL
-// ===============================
-function openModal(title) {
-    modal.style.display = "flex";
-    modalTitle.innerText = title;
-    input.value = "";
-    input.focus();
-}
-
-function closeModal() {
-    modal.style.display = "none";
-}
-
-// ===============================
-// ANSWER SUBMIT（核心）
+// submit answer
 // ===============================
 async function submitAnswer() {
-
+    const input = document.querySelector(".modal-content input");
     const answer = input.value.trim();
 
     if (!currentLevel || !answer) return;
@@ -410,36 +315,120 @@ async function submitAnswer() {
         const json = await res.json();
 
         if (!json.ok) {
-            toast(json.message || "答案錯誤");
+            showError(json.message || "答案錯誤");
             input.value = "";
             return;
         }
 
-        // 成功 → 最穩版本：直接 reload（符合你原設計）
+        // correct
         location.reload();
 
-    } catch (e) {
-        toast("伺服器錯誤");
+    } catch (err) {
+        showError("伺服器錯誤");
         input.value = "";
     }
 }
 
 // ===============================
-// EVENTS（不會再綁錯）
+// core rule engine
 // ===============================
-modal.querySelector("button").onclick = submitAnswer;
+function getLevelState(level) {
 
-input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") submitAnswer();
-});
+    const timeOK = serverState.time[`day${level.day}`];
+    const progress = serverState.progress[`day${level.day}`];
+
+    if (!timeOK) return "LOCK";
+
+    let localIndex = level.id;
+    if (level.day === 2) localIndex = level.id - 7;
+
+    if (localIndex < progress) return "DONE";
+    if (localIndex === progress) return "SOLVE";
+
+    return "LOCK";
+}
 
 // ===============================
-// LOGOUT
+// render UI
+// ===============================
+function renderAll() {
+    renderGroup("#day1", day1Levels);
+    renderGroup("#day2", day2Levels);
+    renderHUD();
+}
+
+function renderGroup(selector, levels) {
+    const buttons = document.querySelectorAll(`${selector} button`);
+
+    buttons.forEach((btn, idx) => {
+
+        const level = levels[idx];
+        const state = getLevelState(level);
+
+        btn.disabled = false;
+        btn.style.opacity = "1";
+
+        if (state === "LOCK") {
+            btn.disabled = true;
+            btn.innerText = "🔒 未開放";
+            btn.style.opacity = "0.4";
+        }
+
+        if (state === "DONE") {
+            btn.disabled = true;
+            btn.innerText = "✔ 已完成";
+            btn.style.opacity = "0.7";
+        }
+
+        if (state === "SOLVE") {
+            btn.disabled = false;
+            btn.innerText = level.name;
+        }
+    });
+}
+
+// ===============================
+// HUD
+// ===============================
+function renderHUD() {
+    document.querySelector(".hud").innerHTML = `
+        <div>ID: ${user.username}</div>
+        <div>Day1：${serverState.time.day1 ? serverState.progress.day1 : "未開放"}/7</div>
+        <div>Day2：${serverState.time.day2 ? serverState.progress.day2 : "未開放"}/9</div>
+    `;
+}
+
+// ===============================
+// modal
+// ===============================
+const modal = document.getElementById("modal");
+const modalTitle = document.getElementById("modalTitle");
+
+function openModal(title) {
+    modal.style.display = "flex";
+    modalTitle.innerText = title;
+}
+
+function closeModal() {
+    modal.style.display = "none";
+}
+
+// ===============================
+// logout
 // ===============================
 function logout() {
     localStorage.removeItem("user");
     location.href = "../index.html";
 }
+
+// ===============================
+// events
+// ===============================
+document.querySelector(".small-btn").onclick = submitAnswer;
+
+document.querySelector(".modal-content input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitAnswer();
+});
 
 // ===============================
 fetchState();
