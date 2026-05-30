@@ -192,30 +192,111 @@ if(!user.username){
 
 document.getElementById("username").innerText = user.username;
 
-// 🎮 關卡拆分
+// ===============================
+// 🌐 Active Checker
+// ===============================
+const ACTIVE_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Active_Checker";
+
+let dayState = {
+    day1: true,
+    day2: true
+};
+
+async function fetchActiveState(){
+    try {
+        const res = await fetch(ACTIVE_URL, {
+            method: "GET"
+        });
+
+        const json = await res.json();
+
+        // backend 回傳 [day1, day2]
+        if(json?.result){
+            dayState.day1 = json.result[0];
+            dayState.day2 = json.result[1];
+        }
+
+        applyLevelLock();
+
+    } catch (err) {
+        console.log("Active fetch failed:", err);
+    }
+}
+
+// ===============================
+// 🎮 關卡資料
+// ===============================
 const day1Levels = Array.from({length:7}, (_,i)=>({
     name:`第${i+1}關`,
-    id:i+1
+    id:i+1,
+    day:1
 }));
 
 const day2Levels = Array.from({length:9}, (_,i)=>({
     name:`第${i+8}關`,
-    id:i+8
+    id:i+8,
+    day:2
 }));
 
 function createLevel(btnContainer, level){
     const btn = document.createElement("button");
     btn.innerText = level.name;
 
-    btn.onclick = () => openModal(level.name);
+    btn.dataset.day = level.day;
+
+    btn.onclick = () => {
+        if(btn.disabled) return;
+        openModal(level.name);
+    };
 
     btnContainer.appendChild(btn);
 }
 
+// render
 day1Levels.forEach(l => createLevel(document.getElementById("day1"), l));
 day2Levels.forEach(l => createLevel(document.getElementById("day2"), l));
 
+// ===============================
+// 🔒 套用鎖定狀態
+// ===============================
+function applyLevelLock(){
+    const day1Btns = document.querySelectorAll("#day1 button");
+    const day2Btns = document.querySelectorAll("#day2 button");
+
+    lockGroup(day1Btns, dayState.day1, "Day1 未開放");
+    lockGroup(day2Btns, dayState.day2, "Day2 未開放");
+
+    updateHUD();
+}
+
+function lockGroup(buttons, isActive, label){
+    buttons.forEach(btn => {
+        if(!isActive){
+            btn.disabled = true;
+            btn.innerText = "🔒 " + label;
+            btn.style.opacity = "0.4";
+            btn.style.cursor = "not-allowed";
+        }
+    });
+}
+
+// ===============================
+// 📊 HUD 更新
+// ===============================
+function updateHUD(){
+    const day1Total = document.querySelectorAll("#day1 button").length;
+    const day2Total = document.querySelectorAll("#day2 button").length;
+
+    document.querySelector(".hud").innerHTML = `
+        <div>ID: <span>${user.username}</span></div>
+        <div>Day1：${dayState.day1 ? "0" : "未開放"}/${day1Total}</div>
+        <div>Day2：${dayState.day2 ? "0" : "未開放"}/${day2Total}</div>
+    `;
+}
+
+// ===============================
 // 📦 modal
+// ===============================
 const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
 
@@ -228,11 +309,16 @@ function closeModal(){
     modal.style.display = "none";
 }
 
+// ===============================
 // 🚪 logout
+// ===============================
 function logout(){
     localStorage.removeItem("user");
     location.href = "../index.html";
 }
+
+// 🚀 init
+fetchActiveState();
 
 </script>
 
