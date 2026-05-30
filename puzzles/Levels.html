@@ -195,11 +195,40 @@ document.getElementById("username").innerText = user.username;
 // API
 // ===============================
 const ACTIVE_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Active_Checker";
+const ANSWER_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Answer_Checker";
 
 let serverState = {
     time: { day1: false, day2: false },
     progress: { day1: 1, day2: 1 }
 };
+
+// ===============================
+// toast error UI
+// ===============================
+function showError(msg) {
+    let el = document.getElementById("toast");
+    if (!el) {
+        el = document.createElement("div");
+        el.id = "toast";
+        el.style.position = "fixed";
+        el.style.top = "20px";
+        el.style.left = "50%";
+        el.style.transform = "translateX(-50%)";
+        el.style.background = "#ff3b3b";
+        el.style.color = "#fff";
+        el.style.padding = "10px 16px";
+        el.style.borderRadius = "10px";
+        el.style.zIndex = "9999";
+        document.body.appendChild(el);
+    }
+
+    el.innerText = msg;
+    el.style.opacity = "1";
+
+    setTimeout(() => {
+        el.style.opacity = "0";
+    }, 2000);
+}
 
 // ===============================
 // fetch backend state
@@ -208,16 +237,11 @@ async function fetchState() {
     try {
         const res = await fetch(ACTIVE_URL, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                username: user.username
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: user.username })
         });
 
         const json = await res.json();
-
         if (!json.ok) return;
 
         serverState.time = json.time;
@@ -246,18 +270,19 @@ const day2Levels = Array.from({ length: 9 }, (_, i) => ({
 }));
 
 // ===============================
-// create button
+// modal state
 // ===============================
+let currentLevel = null;
+
 function createLevel(container, level) {
     const btn = document.createElement("button");
 
     btn.innerText = level.name;
-    btn.dataset.id = level.id;
-    btn.dataset.day = level.day;
-
     btn.onclick = () => {
         const state = getLevelState(level);
         if (state === "LOCK") return;
+
+        currentLevel = level;
         openModal(level.name);
     };
 
@@ -268,6 +293,43 @@ day1Levels.forEach(l => createLevel(document.getElementById("day1"), l));
 day2Levels.forEach(l => createLevel(document.getElementById("day2"), l));
 
 // ===============================
+// submit answer
+// ===============================
+async function submitAnswer() {
+    const input = document.querySelector(".modal-content input");
+    const answer = input.value.trim();
+
+    if (!currentLevel || !answer) return;
+
+    try {
+        const res = await fetch(ANSWER_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: user.username,
+                levelId: currentLevel.id,
+                answer
+            })
+        });
+
+        const json = await res.json();
+
+        if (!json.ok) {
+            showError(json.message || "答案錯誤");
+            input.value = "";
+            return;
+        }
+
+        // correct
+        location.reload();
+
+    } catch (err) {
+        showError("伺服器錯誤");
+        input.value = "";
+    }
+}
+
+// ===============================
 // core rule engine
 // ===============================
 function getLevelState(level) {
@@ -275,19 +337,11 @@ function getLevelState(level) {
     const timeOK = serverState.time[`day${level.day}`];
     const progress = serverState.progress[`day${level.day}`];
 
-    // 🔵 time gate (highest priority)
     if (!timeOK) return "LOCK";
 
-    // ===============================
-    // Day2 offset fix
-    // ===============================
     let localIndex = level.id;
+    if (level.day === 2) localIndex = level.id - 7;
 
-    if (level.day === 2) {
-        localIndex = level.id - 7;
-    }
-
-    // 🟡 progress logic
     if (localIndex < progress) return "DONE";
     if (localIndex === progress) return "SOLVE";
 
@@ -311,16 +365,13 @@ function renderGroup(selector, levels) {
         const level = levels[idx];
         const state = getLevelState(level);
 
-        // reset
         btn.disabled = false;
         btn.style.opacity = "1";
-        btn.style.cursor = "pointer";
 
         if (state === "LOCK") {
             btn.disabled = true;
             btn.innerText = "🔒 未開放";
             btn.style.opacity = "0.4";
-            btn.style.cursor = "not-allowed";
         }
 
         if (state === "DONE") {
@@ -340,17 +391,10 @@ function renderGroup(selector, levels) {
 // HUD
 // ===============================
 function renderHUD() {
-
-    const d1Total = day1Levels.length;
-    const d2Total = day2Levels.length;
-
-    const d1Progress = serverState.progress.day1;
-    const d2Progress = serverState.progress.day2;
-
     document.querySelector(".hud").innerHTML = `
         <div>ID: ${user.username}</div>
-        <div>Day1：${serverState.time.day1 ? d1Progress : "未開放"}/${d1Total}</div>
-        <div>Day2：${serverState.time.day2 ? d2Progress : "未開放"}/${d2Total}</div>
+        <div>Day1：${serverState.time.day1 ? serverState.progress.day1 : "未開放"}/7</div>
+        <div>Day2：${serverState.time.day2 ? serverState.progress.day2 : "未開放"}/9</div>
     `;
 }
 
@@ -378,7 +422,14 @@ function logout() {
 }
 
 // ===============================
-// init
+// events
+// ===============================
+document.querySelector(".small-btn").onclick = submitAnswer;
+
+document.querySelector(".modal-content input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitAnswer();
+});
+
 // ===============================
 fetchState();
 
