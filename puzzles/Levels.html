@@ -5,54 +5,122 @@
 <title>關卡列表</title>
 
 <style>
-body{
-    font-family:sans-serif;
-    max-width:800px;
-    margin:auto;
-    padding:30px;
+:root{
+    --bg:#070907;
+    --card:#101410;
+    --line:#2b442b;
+    --green:#6bff4d;
+    --text:#f5f5f5;
 }
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    font-family:sans-serif;
+    color:var(--text);
+
+    background:
+        radial-gradient(circle at top left, rgba(107,255,77,.15), transparent 40%),
+        radial-gradient(circle at bottom right, rgba(107,255,77,.1), transparent 40%),
+        var(--bg);
+
+    padding:40px;
+}
+
+/* 🔥 右上角 HUD */
+.hud{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:rgba(15,20,15,.9);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 16px;
+    backdrop-filter:blur(8px);
+    font-size:14px;
+    line-height:1.6;
+    box-shadow:0 0 25px rgba(0,0,0,.4);
+}
+
+/* 標題 */
+h1{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+/* 進度文字 */
+#progress{
+    text-align:center;
+    margin-bottom:25px;
+    color:#cfcfcf;
+}
+
+/* 關卡格子 */
 .levels{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
     gap:15px;
 }
 
+/* 按鈕風格同步 Login */
 button{
     padding:15px;
     font-size:16px;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+
+    background:rgba(20,25,20,.9);
+    border:1px solid var(--line);
+    color:var(--text);
+
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    background:var(--green);
+    color:#000;
+    transform:translateY(-2px);
 }
 </style>
 
 </head>
+
 <body>
 
-<h1>關卡選擇</h1>
+<!-- 🧭 右上角資訊 -->
+<div class="hud">
+    <div>ID: <span id="username">---</span></div>
+    <div>Day1：0/7</div>
+    <div>Day2：0/7</div>
+</div>
 
+<h1>關卡選擇</h1>
 <h3 id="progress"></h3>
 
 <div class="levels" id="levelContainer"></div>
 
 <script>
 
-if(localStorage.getItem("loggedIn") !== "true")
-{
+const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+// 🔐 沒登入直接踢回
+if(!user || !user.username){
     location.href = "login.html";
 }
 
+document.getElementById("username").innerText = user.username || "Unknown";
+
 const levels = [
-    {
-        name:"第一關",
-        url:"level1.html"
-    },
-    {
-        name:"第二關",
-        url:"level2.html"
-    },
-    {
-        name:"第三關",
-        url:"level3.html"
-    }
+    { name:"第一關", url:"level1.html" },
+    { name:"第二關", url:"level2.html" },
+    { name:"第三關", url:"level3.html" }
 ];
 
 let solved = Number(localStorage.getItem("solvedCount") || 0);
@@ -62,14 +130,11 @@ document.getElementById("progress").innerText =
 
 const container = document.getElementById("levelContainer");
 
-levels.forEach(level =>
-{
+levels.forEach(level => {
     const btn = document.createElement("button");
-
     btn.innerText = level.name;
 
-    btn.onclick = () =>
-    {
+    btn.onclick = () => {
         window.location.href = level.url;
     };
 
