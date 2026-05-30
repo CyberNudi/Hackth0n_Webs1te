@@ -107,31 +107,36 @@ button:hover{
 <div class="levels" id="levelContainer"></div>
 
 <script>
-    
-const params = new URLSearchParams(window.location.search);
-const urlUsername = params.get("username");
 
-// 🔐 沒登入直接踢回
-if(!urlUsername){
+// 🔐 讀取登入資料
+const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+// ❌ 沒登入直接回去
+if(!user.username){
     location.href = "../login.html";
 }
 
-document.getElementById("username").innerText = urlUsername || "Unknown";
+// 👤 顯示 username
+document.getElementById("username").innerText = user.username;
 
+// 📊 關卡資料
 const levels = [
     { name:"第一關", url:"level1.html" },
     { name:"第二關", url:"level2.html" },
     { name:"第三關", url:"level3.html" }
 ];
 
+// 📈 進度
 let solved = Number(localStorage.getItem("solvedCount") || 0);
 
 document.getElementById("progress").innerText =
 `進度：${solved}/${levels.length}`;
 
+// 🎮 生成按鈕
 const container = document.getElementById("levelContainer");
 
 levels.forEach(level => {
+
     const btn = document.createElement("button");
     btn.innerText = level.name;
 
