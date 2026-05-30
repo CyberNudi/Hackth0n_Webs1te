@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>關卡列表</title>
+
+<style>
+body{
+    font-family:sans-serif;
+    max-width:800px;
+    margin:auto;
+    padding:30px;
+}
+
+.levels{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:15px;
+}
+
+button{
+    padding:15px;
+    font-size:16px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>關卡選擇</h1>
+
+<h3 id="progress"></h3>
+
+<div class="levels" id="levelContainer"></div>
+
+<script>
+
+if(localStorage.getItem("loggedIn") !== "true")
+{
+    location.href = "login.html";
+}
+
+const levels = [
+    {
+        name:"第一關",
+        url:"level1.html"
+    },
+    {
+        name:"第二關",
+        url:"level2.html"
+    },
+    {
+        name:"第三關",
+        url:"level3.html"
+    }
+];
+
+let solved = Number(localStorage.getItem("solvedCount") || 0);
+
+document.getElementById("progress").innerText =
+`進度：${solved}/${levels.length}`;
+
+const container = document.getElementById("levelContainer");
+
+levels.forEach(level =>
+{
+    const btn = document.createElement("button");
+
+    btn.innerText = level.name;
+
+    btn.onclick = () =>
+    {
+        window.location.href = level.url;
+    };
+
+    container.appendChild(btn);
+});
+
+</script>
+
+</body>
+</html>
