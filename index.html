@@ -1,264 +1,146 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Part of Background</title>
-  <style>
-    :root {
-      --bg-0: #070907;
-      --bg-1: #0f1210;
-      --bg-2: #151915;
-      --ink-0: #f2f5f2;
-      --ink-1: #c7cfc7;
-      --ink-2: #9aa39a;
-      --line: rgba(255, 255, 255, 0.09);
-      --green-0: #b7ff6a;
-      --green-1: #6bff4d;
-      --green-2: #2bdc5f;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login</title>
 
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      background-color: var(--bg-0);
-      color: var(--ink-0);
-      font-family: "Space Grotesk", "Noto Sans TC", "Segoe UI", sans-serif;
-      overflow: hidden;
-    }
+<style>
+:root{
+    --bg:#070907;
+    --card:#101410;
+    --line:#2b442b;
+    --green:#6bff4d;
+    --text:#f5f5f5;
+}
 
-    body {
-      background-image:
-        radial-gradient(800px 520px at 12% 12%, rgba(43, 220, 95, 0.10), transparent 55%),
-        radial-gradient(900px 700px at 88% 88%, rgba(183, 255, 106, 0.08), transparent 60%),
-        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 10px);
-    }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-    .bg-test {
-      width: 100vw;
-      height: 100vh;
-      background-image:
-        radial-gradient(60% 50% at 50% 0%, rgba(43, 220, 95, 0.08), transparent 60%),
-        linear-gradient(180deg, rgba(7, 9, 7, 0.45), rgba(7, 9, 7, 0.15) 45%, rgba(7, 9, 7, 0.65)),
-        url(./Label.png);
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: cover, cover, contain;
-      background-blend-mode: screen, multiply, normal;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      isolation: isolate;
-    }
+body{
+    height:100vh;
+    background:
+        radial-gradient(circle at top left, rgba(107,255,77,.15), transparent 40%),
+        radial-gradient(circle at bottom right, rgba(107,255,77,.1), transparent 40%),
+        #070907;
 
-    .bg-test::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(55% 45% at 50% 45%, rgba(0, 0, 0, 0.0), rgba(0, 0, 0, 0.45)),
-        linear-gradient(180deg, rgba(43, 220, 95, 0.08), rgba(43, 220, 95, 0.0) 60%);
-      pointer-events: none;
-      z-index: 0;
-      mix-blend-mode: screen;
-      animation: glowFlicker 3.8s ease-in-out infinite;
-    }
+    display:flex;
+    justify-content:center;
+    align-items:center;
 
-    .login-box {
-      background: rgba(12, 14, 12, 0.78);
-      backdrop-filter: blur(10px);
-      padding: 38px 40px;
-      border-radius: 18px;
-      width: 340px;
-      text-align: center;
-      border: 1px solid var(--line);
-      box-shadow:
-        0 18px 40px rgba(0, 0, 0, 0.45),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-      position: relative;
-      z-index: 1;
-      animation: cardIn 700ms ease-out;
-    }
+    font-family:sans-serif;
+    color:white;
+}
 
-    .login-box h2 {
-      margin-bottom: 26px;
-      color: var(--ink-0);
-      letter-spacing: 0.04em;
-      text-shadow: 0 0 10px rgba(107, 255, 77, 0.2);
-    }
+.login-box{
+    width:360px;
+    padding:35px;
+    border-radius:18px;
+    background:rgba(15,20,15,.9);
+    border:1px solid var(--line);
+    backdrop-filter:blur(8px);
+    box-shadow:0 0 30px rgba(0,0,0,.4);
+}
 
-    .login-box input {
-      width: 100%;
-      padding: 12px 12px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(20, 24, 20, 0.9);
-      color: var(--ink-0);
-      box-sizing: border-box;
-      transition: border-color 180ms ease, box-shadow 180ms ease;
-      outline: none;
-    }
+h2{
+    text-align:center;
+    margin-bottom:25px;
+}
 
-    .login-box input::placeholder {
-      color: var(--ink-2);
-    }
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    background:#151915;
+    border:1px solid #334433;
+    border-radius:10px;
+    color:white;
+}
 
-    .login-box input:focus {
-      border-color: rgba(107, 255, 77, 0.7);
-      box-shadow: 0 0 0 3px rgba(107, 255, 77, 0.15);
-    }
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+    background:var(--green);
+    cursor:pointer;
+}
 
-    .login-box button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 18px;
-      background: linear-gradient(180deg, #66ff7b, #1fcf63);
-      color: #0a120c;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      box-shadow: 0 10px 20px rgba(31, 207, 99, 0.2);
-      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
-    }
+button:hover{
+    filter:brightness(1.1);
+}
 
-    .login-box button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 26px rgba(31, 207, 99, 0.28);
-      filter: brightness(1.02);
-    }
-
-    .login-box button:active {
-      transform: translateY(0);
-      filter: brightness(0.98);
-    }
-
-    #result {
-      margin-top: 14px;
-      font-weight: bold;
-      color: var(--ink-1);
-    }
-
-    @keyframes cardIn {
-      0% {
-        opacity: 0;
-        transform: translateY(10px) scale(0.98);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes glowFlicker {
-      0%, 100% { opacity: 0.95; }
-      18% { opacity: 0.65; }
-      35% { opacity: 0.88; }
-      52% { opacity: 0.55; }
-      70% { opacity: 0.92; }
-      82% { opacity: 0.6; }
-    }
-
-    @media (max-width: 640px) {
-      .login-box {
-        width: min(86vw, 360px);
-        padding: 28px;
-      }
-    }
-  </style>
+#result{
+    margin-top:15px;
+    text-align:center;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="bg-test">
-    <div class="login-box">
-      <h2>Admin Login</h2>
+<div class="login-box">
+    <h2>Admin Login</h2>
 
-      <!-- 帳號/密碼輸入 -->
-      <input id="username" type="text" placeholder="Username">
-      <input id="password" type="password" placeholder="Password">
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
 
-      <button id="loginBtn">Login</button>
-      <p id="result"></p>
-    </div>
-  </div>
+    <button id="loginBtn">Login</button>
 
-  <script>
-    const SUPABASE_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliY2RqaXpvbmZkaG1ieGd3ZGZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5MjU5MDcsImV4cCI6MjA4NTUwMTkwN30.LwaQ1MivIORu7xc3MEpJWAVP0s1aLdZEv1KuydaaCgk";
-    const LOGIN_API = `${SUPABASE_URL}/functions/v1/Hackthon_Auth`;
-    // 產生六位英數 token
-    function generateToken(length = 6) {
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      let t = "";
-      for (let i = 0; i < length; i++) {
-        t += chars[Math.floor(Math.random() * chars.length)];
-      }
-      return t;
-    }
+    <p id="result"></p>
+</div>
 
-    document.getElementById("loginBtn").onclick = async () => {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const result = document.getElementById("result");
-      const answer = "login";
-      if (!username || !password) {
-        result.style.color = "#ff4d4d";
-        result.textContent = "請輸入帳號與密碼";
-        return;
-      }
+<script>
 
-      const token = generateToken();
+const LOGIN_API =
+    "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Login_Auth";
 
-      result.style.color = "#ffff00";
-      result.textContent = "Processing...";
+document.getElementById("loginBtn").onclick = async () => {
 
-      try {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const result = document.getElementById("result");
+
+    result.innerText = "Checking...";
+
+    try {
+
         const res = await fetch(LOGIN_API, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-          },
-          body: JSON.stringify({ //傳4個參數給superbase edgeFuction 後端S
-            username,
-            password,
-            token,
-			      answer
-          })
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, password })
         });
 
         const data = await res.json();
 
+        // 成功登入
         if (data.ok === true) {
-          result.style.color = "#00ff00";
-          result.textContent = "LoginSuccess";
-		  //導向 puzzle1.html 並把變數帶上
-		  const puzzleUrl = `https://cybernudi.github.io/Hackth0n_Webs1te/puzzles/Day1/puzzle1.html?username=${encodeURIComponent(username)}&token=${encodeURIComponent(token)}`;
-		  window.location.href = puzzleUrl;
 
-        } else {
+            localStorage.setItem("user", JSON.stringify(data));
 
-          result.style.color = "#ff4d4d";
-          result.textContent = data.error || "Login Failed";
+            location.href = "./Levels.html";
+
+            return;
         }
 
-      } catch (err) {
-	  		  console.error(err);
-        result.style.color = "#ff4d4d";
-        result.textContent = "Connection Error";
-      }
-    };
-  </script>
+        // 失敗
+        result.innerText = data.error || "Login failed";
+        result.style.color = "#ff6060";
+
+    } catch (err) {
+
+        result.innerText = "Network error";
+        result.style.color = "#ff6060";
+    }
+};
+
+</script>
 
 </body>
 </html>
-
-
-
-
-
