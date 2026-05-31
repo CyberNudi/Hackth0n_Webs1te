@@ -181,7 +181,7 @@ button:hover{
 
 <div class="divider"></div>
 
-<div class="section-title">找物</div>
+<div class="section-title">蛛絲馬跡</div>
 <div class="levels" id="findings"></div>
 <button class="logout" onclick="logout()">登出</button>
 
@@ -292,38 +292,38 @@ const day2Levels = Array.from({ length: 9 }, (_, i) => ({
 const sideQuestLevels = [
     {
         name: "A",
-        description: "這裡是支線任務A的說明內容，可以放入超過一百字的敘述。玩家需要根據提示尋找線索、觀察場景或完成額外挑戰。此區塊未來可擴充成動態從資料庫讀取內容，也能依照玩家進度顯示不同描述。"
+        description: "找出當初醫生的檔案備份位置。\n難度：★"
     },
     {
         name: "B",
-        description: "支線任務B說明。未來可放置故事背景、解謎規則、任務目標或角色對話內容。由於說明區域可容納大量文字，因此不需要擔心字數限制。"
+        description: "追蹤那些被誤導者的足跡。\n難度：★★"
     },
     {
         name: "C",
-        description: "支線任務C說明內容。"
+        description: "那是一隻會很長壽的鹿。\n難度：★"
     },
     {
         name: "D",
-        description: "支線任務D說明內容。"
+        description: "你好，研究人—痾不對，我的意思是|渡鴉|。\n難度：★"
     },
     {
         name: "E",
-        description: "支線任務E說明內容。"
+        description: "那是世界的中心，就在這兩天中的精華之處。\n難度：★★★"
     }
 ];
 
 const findingLevels = [
     {
         name: "甲",
-        description: "找物甲的說明內容。"
+        description: "我可能曾經到過森林，並在最顯眼之處留下了足跡。"
     },
     {
         name: "乙",
-        description: "找物乙的說明內容。"
+        description: "找到我的線人，他可能就在路上了。"
     },
     {
         name: "丙",
-        description: "找物丙的說明內容。"
+        description: "我那時手頭拮据，於是便將這份線索賣給了—"
     }
 ];
 let currentLevel = null;
