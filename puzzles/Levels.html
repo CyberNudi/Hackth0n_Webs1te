@@ -135,6 +135,23 @@ button:hover{
     padding:10px;
     font-size:14px;
 }
+.modal-description{
+    min-height:120px;
+    max-height:250px;
+    overflow-y:auto;
+
+    margin-bottom:12px;
+    padding:10px;
+
+    border:1px solid #334433;
+    border-radius:8px;
+
+    background:#151915;
+    color:#ddd;
+    line-height:1.6;
+    font-size:14px;
+    white-space:pre-wrap;
+}
 </style>
 </head>
 
@@ -157,16 +174,26 @@ button:hover{
 
 <div class="section-title">第二天</div>
 <div class="levels" id="day2"></div>
+<div class="divider"></div>
 
+<div class="section-title">支線任務</div>
+<div class="levels" id="sidequests"></div>
+
+<div class="divider"></div>
+
+<div class="section-title">找物</div>
+<div class="levels" id="findings"></div>
 <button class="logout" onclick="logout()">登出</button>
 
 <div class="modal" id="modal">
     <div class="modal-content">
         <h2 id="modalTitle">關卡</h2>
 
-        <button class="small-btn">下載</button>
-
-        <input placeholder="輸入答案">
+        <div id="modalDescription" class="modal-description">
+            說明內容
+        </div>
+        
+        <input id="modalInput" placeholder="輸入答案">
 
         <div class="btn-row">
             <button id="submitBtn" class="small-btn">Enter</button>
@@ -262,7 +289,43 @@ const day2Levels = Array.from({ length: 9 }, (_, i) => ({
     id: i + 8,
     day: 2
 }));
+const sideQuestLevels = [
+    {
+        name: "A",
+        description: "這裡是支線任務A的說明內容，可以放入超過一百字的敘述。玩家需要根據提示尋找線索、觀察場景或完成額外挑戰。此區塊未來可擴充成動態從資料庫讀取內容，也能依照玩家進度顯示不同描述。"
+    },
+    {
+        name: "B",
+        description: "支線任務B說明。未來可放置故事背景、解謎規則、任務目標或角色對話內容。由於說明區域可容納大量文字，因此不需要擔心字數限制。"
+    },
+    {
+        name: "C",
+        description: "支線任務C說明內容。"
+    },
+    {
+        name: "D",
+        description: "支線任務D說明內容。"
+    },
+    {
+        name: "E",
+        description: "支線任務E說明內容。"
+    }
+];
 
+const findingLevels = [
+    {
+        name: "甲",
+        description: "找物甲的說明內容。"
+    },
+    {
+        name: "乙",
+        description: "找物乙的說明內容。"
+    },
+    {
+        name: "丙",
+        description: "找物丙的說明內容。"
+    }
+];
 let currentLevel = null;
 
 function createLevel(container, level) {
@@ -282,7 +345,29 @@ function createLevel(container, level) {
 
 day1Levels.forEach(l => createLevel(document.getElementById("day1"), l));
 day2Levels.forEach(l => createLevel(document.getElementById("day2"), l));
+sideQuestLevels.forEach(item => {
+    const btn = document.createElement("button");
 
+    btn.innerText = item.name;
+
+    btn.onclick = () => {
+        openTaskModal(item.name, item.description);
+    };
+
+    document.getElementById("sidequests").appendChild(btn);
+});
+
+findingLevels.forEach(item => {
+    const btn = document.createElement("button");
+
+    btn.innerText = item.name;
+
+    btn.onclick = () => {
+        openTaskModal(item.name, item.description);
+    };
+
+    document.getElementById("findings").appendChild(btn);
+});
 // ===============================
 async function submitAnswer() {
     const input = document.querySelector(".modal-content input");
@@ -391,10 +476,31 @@ const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
 
 function openModal(title) {
-    modal.style.display = "flex";
-    modalTitle.innerText = title;
-}
 
+    modal.style.display = "flex";
+
+    modalTitle.innerText = title;
+
+    modalDescription.innerText =
+        "請輸入本關卡答案。";
+
+    document.getElementById("modalInput").value = "";
+}
+const modalDescription =
+    document.getElementById("modalDescription");
+
+function openTaskModal(title, description) {
+
+    modal.style.display = "flex";
+
+    modalTitle.innerText = title;
+
+    modalDescription.innerText = description;
+
+    document.getElementById("modalInput").value = "";
+
+    currentLevel = null;
+}
 function closeModal() {
     modal.style.display = "none";
 }
