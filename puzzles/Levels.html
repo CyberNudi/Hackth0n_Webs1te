@@ -327,7 +327,7 @@ sideQuestLevels.forEach(item => {
     btn.innerText = item.name;
 
     btn.onclick = () => {
-        openTaskModal(item.name, item.description);
+        openTaskModal(item.name, item.description, item.id);
     };
 
     document.getElementById("sidequests").appendChild(btn);
@@ -339,7 +339,7 @@ findingLevels.forEach(item => {
     btn.innerText = item.name;
 
     btn.onclick = () => {
-        openTaskModal(item.name, item.description);
+        openTaskModal(item.name, item.description, item.id);
     };
 
     document.getElementById("findings").appendChild(btn);
@@ -465,17 +465,19 @@ function openModal(title) {
 const modalDescription =
     document.getElementById("modalDescription");
 
-function openTaskModal(title, description) {
-
+function openTaskModal(title, description, id) {
     modal.style.display = "flex";
 
     modalTitle.innerText = title;
-
     modalDescription.innerText = description;
 
     document.getElementById("modalInput").value = "";
 
-    currentLevel = null;
+    // ⭐關鍵：讓它變成可提交關卡
+    currentLevel = {
+        id: id,
+        day: 3 // 或你自訂 sideQuest / finding 分類
+    };
 }
 function closeModal() {
     modal.style.display = "none";
