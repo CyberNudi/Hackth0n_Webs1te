@@ -41,6 +41,7 @@ body{
     border-radius:12px;
     padding:12px 16px;
     font-size:14px;
+    z-index: 100;
 }
 
 /* 區塊標題 */
@@ -72,10 +73,21 @@ button{
     transition:.2s;
 }
 
-button:hover{
+button:hover:not(:disabled){
     background:var(--green);
     color:#000;
     transform:translateY(-2px);
+}
+
+/* 已完成按鈕樣式優化 */
+button.done-btn {
+    border-color: var(--green);
+    color: #a3ffa3;
+    background: rgba(30, 50, 30, 0.4);
+}
+button.done-btn:hover {
+    background: var(--green);
+    color: #000;
 }
 
 .divider{
@@ -100,6 +112,7 @@ button:hover{
     display:none;
     justify-content:center;
     align-items:center;
+    z-index: 1000;
 }
 
 .modal-content{
@@ -157,7 +170,6 @@ button:hover{
 
 <body>
 
-<!-- HUD（已加入 Score） -->
 <div class="hud">
     <div>ID: <span id="username">---</span></div>
     <div>Score：0</div>
@@ -220,7 +232,7 @@ const ANSWER_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Answer
 
 let serverState = {
     time: { day1: false, day2: false },
-    progress: { day1: 1, day2: 1 },
+    progress: { day1: 1, day2: 1, side: 0 }, // 補上 side 預設值
     score: 0
 };
 
@@ -251,7 +263,7 @@ function showError(msg) {
 }
 
 // ===============================
-// fetch state（已加 score）
+// fetch state
 // ===============================
 async function fetchState() {
     try {
@@ -266,6 +278,7 @@ async function fetchState() {
 
         serverState.time = json.time;
         serverState.progress = json.progress;
+        serverState.progress.side = json.progress.side ?? 0; // 確保 side 有值
         serverState.score = json.score ?? 0;
 
         renderAll();
@@ -276,7 +289,7 @@ async function fetchState() {
 }
 
 // ===============================
-// levels
+// 關卡資料定義
 // ===============================
 const day1Levels = Array.from({ length: 7 }, (_, i) => ({
     name: `第${i + 1}關`,
@@ -289,6 +302,7 @@ const day2Levels = Array.from({ length: 9 }, (_, i) => ({
     id: i + 8,
     day: 2
 }));
+
 const sideQuestLevels = [
     { id: 17, name: "A", description: "找出當初醫生的檔案備份位置。\n難度：★" },
     { id: 18, name: "B", description: "追蹤那些被誤導者的足跡。\n難度：★★" },
@@ -302,48 +316,46 @@ const findingLevels = [
     { id: 23, name: "乙", description: "找到我的線人，他可能就在路上了。" },
     { id: 24, name: "丙", description: "我那時手頭拮据，於是便將這份線索賣給了—" }
 ];
+
 let currentLevel = null;
 
-function createLevel(container, level) {
-    const btn = document.createElement("button");
+// ===============================
+// 初始化建立按鈕 (DOM 產生)
+// ===============================
+function initButtons() {
+    // 主線 Day 1
+    day1Levels.forEach(l => createMainLevelBtn(document.getElementById("day1"), l));
+    // 主線 Day 2
+    day2Levels.forEach(l => createMainLevelBtn(document.getElementById("day2"), l));
+    // 支線任務 (17~21)
+    sideQuestLevels.forEach(l => createBitmaskLevelBtn(document.getElementById("sidequests"), l));
+    // 蛛絲馬跡 (22~24)
+    findingLevels.forEach(l => createBitmaskLevelBtn(document.getElementById("findings"), l));
+}
 
+function createMainLevelBtn(container, level) {
+    const btn = document.createElement("button");
     btn.innerText = level.name;
     btn.onclick = () => {
         const state = getLevelState(level);
         if (state === "LOCK") return;
-
         currentLevel = level;
         openModal(level.name);
     };
-
     container.appendChild(btn);
 }
 
-day1Levels.forEach(l => createLevel(document.getElementById("day1"), l));
-day2Levels.forEach(l => createLevel(document.getElementById("day2"), l));
-sideQuestLevels.forEach(item => {
+function createBitmaskLevelBtn(container, level) {
     const btn = document.createElement("button");
-
-    btn.innerText = item.name;
-
+    btn.innerText = level.name;
     btn.onclick = () => {
-        openTaskModal(item.name, item.description, item.id);
+        openTaskModal(level.name, level.description, level.id);
     };
+    container.appendChild(btn);
+}
 
-    document.getElementById("sidequests").appendChild(btn);
-});
-
-findingLevels.forEach(item => {
-    const btn = document.createElement("button");
-
-    btn.innerText = item.name;
-
-    btn.onclick = () => {
-        openTaskModal(item.name, item.description, item.id);
-    };
-
-    document.getElementById("findings").appendChild(btn);
-});
+// ===============================
+// 答案提交
 // ===============================
 async function submitAnswer() {
     const input = document.querySelector(".modal-content input");
@@ -370,6 +382,7 @@ async function submitAnswer() {
             return;
         }
 
+        // 答對後重新載入以更新最新進度與分數
         location.reload();
 
     } catch (err) {
@@ -378,8 +391,9 @@ async function submitAnswer() {
 }
 
 // ===============================
+// 取得主線狀態
+// ===============================
 function getLevelState(level) {
-
     const timeOK = serverState.time[`day${level.day}`];
     const progress = serverState.progress[`day${level.day}`];
 
@@ -395,21 +409,26 @@ function getLevelState(level) {
 }
 
 // ===============================
+// 畫面上色與文字狀態更新
+// ===============================
 function renderAll() {
-    renderGroup("#day1", day1Levels);
-    renderGroup("#day2", day2Levels);
+    renderMainGroup("#day1", day1Levels);
+    renderMainGroup("#day2", day2Levels);
+    renderBitmaskGroup("#sidequests", sideQuestLevels); // 渲染支線
+    renderBitmaskGroup("#findings", findingLevels);     // 渲染蛛絲馬跡
     renderHUD();
 }
 
-function renderGroup(selector, levels) {
+// 渲染主線 (線性推進)
+function renderMainGroup(selector, levels) {
     const buttons = document.querySelectorAll(`${selector} button`);
 
     buttons.forEach((btn, idx) => {
-
         const level = levels[idx];
         const state = getLevelState(level);
 
         btn.disabled = false;
+        btn.classList.remove("done-btn");
         btn.style.opacity = "1";
 
         if (state === "LOCK") {
@@ -431,72 +450,91 @@ function renderGroup(selector, levels) {
     });
 }
 
-// ===============================
-// HUD（已加入 score）
-// ===============================
+// 渲染支線與足跡 (Bitmask 判定)
+function renderBitmaskGroup(selector, levels) {
+    const buttons = document.querySelectorAll(`${selector} button`);
+    const sideMask = serverState.progress.side;
+
+    buttons.forEach((btn, idx) => {
+        const level = levels[idx];
+        
+        // 算出該關卡對應的位元 (例如 17 關就是 1 << 0, 22 關就是 1 << 5)
+        const levelBit = 1 << (level.id - 17);
+        
+        // 使用 Bitwise AND 檢查該位元是否為 1
+        const isDone = (sideMask & levelBit) !== 0;
+
+        if (isDone) {
+            btn.innerText = `✔ ${level.name} (已完成)`;
+            btn.classList.add("done-btn"); // 加入綠框特殊樣式
+        } else {
+            btn.innerText = level.name;
+            btn.classList.remove("done-btn");
+        }
+    });
+}
+
+// 渲染 HUD 頂部狀態列
 function renderHUD() {
     document.querySelector(".hud").innerHTML = `
         <div>ID: ${user.username}</div>
         <div>Score：${serverState.score}</div>
         <div>Day1：${
-            serverState.time.day1 ? serverState.progress.day1 : "未開放"
+            serverState.time.day1 ? (serverState.progress.day1 - 1) : "未開放"
         }/7</div>
         <div>Day2：${
-            serverState.time.day2 ? serverState.progress.day2 : "未開放"
+            serverState.time.day2 ? (serverState.progress.day2 - 1) : "未開放"
         }/9</div>
     `;
 }
 
 // ===============================
+// 彈窗 Modal 控制
+// ===============================
 const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
+const modalDescription = document.getElementById("modalDescription");
 
 function openModal(title) {
-
     modal.style.display = "flex";
-
     modalTitle.innerText = title;
-
-    modalDescription.innerText =
-        "請輸入本關卡答案。";
-
+    modalDescription.innerText = "請輸入本關卡答案。";
     document.getElementById("modalInput").value = "";
 }
-const modalDescription =
-    document.getElementById("modalDescription");
 
 function openTaskModal(title, description, id) {
     modal.style.display = "flex";
-
     modalTitle.innerText = title;
     modalDescription.innerText = description;
-
     document.getElementById("modalInput").value = "";
 
-    // ⭐關鍵：讓它變成可提交關卡
+    // 指定當前操作的關卡資訊為此支線/足跡
     currentLevel = {
         id: id,
-        day: 3 // 或你自訂 sideQuest / finding 分類
+        day: 3 
     };
 }
+
 function closeModal() {
     modal.style.display = "none";
 }
 
+// ===============================
+// 登出與事件繫結
 // ===============================
 function logout() {
     localStorage.removeItem("user");
     location.href = "../index.html";
 }
 
-// ===============================
 document.getElementById("submitBtn").onclick = submitAnswer;
 
-document.querySelector(".modal-content input")
-.addEventListener("keydown", (e) => {
+document.querySelector(".modal-content input").addEventListener("keydown", (e) => {
     if (e.key === "Enter") submitAnswer();
 });
 
+// 執行初始化與載入
+initButtons();
 fetchState();
 
 </script>
