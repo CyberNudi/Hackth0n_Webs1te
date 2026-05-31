@@ -290,41 +290,17 @@ const day2Levels = Array.from({ length: 9 }, (_, i) => ({
     day: 2
 }));
 const sideQuestLevels = [
-    {
-        name: "A",
-        description: "找出當初醫生的檔案備份位置。\n難度：★"
-    },
-    {
-        name: "B",
-        description: "追蹤那些被誤導者的足跡。\n難度：★★"
-    },
-    {
-        name: "C",
-        description: "那是一隻會很長壽的鹿。\n難度：★"
-    },
-    {
-        name: "D",
-        description: "你好，研究人—痾不對，我的意思是|渡鴉|。\n難度：★"
-    },
-    {
-        name: "E",
-        description: "那是世界的中心，就在這兩天中的精華之處。\n難度：★★★"
-    }
+    { id: 17, name: "A", description: "找出當初醫生的檔案備份位置。\n難度：★" },
+    { id: 18, name: "B", description: "追蹤那些被誤導者的足跡。\n難度：★★" },
+    { id: 19, name: "C", description: "那是一隻會很長壽的鹿。\n難度：★" },
+    { id: 20, name: "D", description: "你好，研究人—痾不對，我的意思是|渡鴉|。\n難度：★" },
+    { id: 21, name: "E", description: "那是世界的中心，就在這兩天中的精華之處。\n難度：★★★" }
 ];
 
 const findingLevels = [
-    {
-        name: "甲",
-        description: "我可能曾經到過森林，並在最顯眼之處留下了足跡。"
-    },
-    {
-        name: "乙",
-        description: "找到我的線人，他可能就在路上了。"
-    },
-    {
-        name: "丙",
-        description: "我那時手頭拮据，於是便將這份線索賣給了—"
-    }
+    { id: 22, name: "甲", description: "我可能曾經到過森林，並在最顯眼之處留下了足跡。" },
+    { id: 23, name: "乙", description: "找到我的線人，他可能就在路上了。" },
+    { id: 24, name: "丙", description: "我那時手頭拮据，於是便將這份線索賣給了—" }
 ];
 let currentLevel = null;
 
