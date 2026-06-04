@@ -41,6 +41,18 @@ body {
     radial-gradient(circle, rgba(61,255,90,.06) 1px, transparent 1px);
   background-size: auto, auto, 28px 28px;
 }
+/* deer watermark */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: url('Label.png') center / 48vmin no-repeat;
+  mix-blend-mode: screen;
+  opacity: .11;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* scanlines — sits above everything */
 body::before {
   content: '';
   position: fixed; inset: 0;
@@ -62,12 +74,22 @@ body::before {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
+.nav-brand {
+  display: flex; align-items: center;
+  gap: 10px; margin-right: auto;
+}
+.nav-emblem {
+  height: 38px; width: 38px;
+  object-fit: cover; border-radius: 3px;
+  opacity: .82;
+  transition: opacity .2s;
+}
+.nav-emblem:hover { opacity: 1; }
 .nav-logo {
   font-family: var(--disp);
   font-size: 30px; letter-spacing: .1em;
   color: var(--green);
   text-shadow: 0 0 24px rgba(61,255,90,.5);
-  margin-right: auto;
 }
 .nav-sep {
   width: 1px; height: 22px;
@@ -324,7 +346,10 @@ button.done-btn:hover:not(:disabled)::before {
 <body>
 
 <nav class="navbar">
-  <div class="nav-logo">CASE FILES</div>
+  <div class="nav-brand">
+    <img src="Label.png" alt="3301" class="nav-emblem">
+    <div class="nav-logo">CASE FILES</div>
+  </div>
   <div class="nav-stat">
     <span class="nav-stat-label">Agent</span>
     <span class="nav-agent-val" id="username">---</span>
