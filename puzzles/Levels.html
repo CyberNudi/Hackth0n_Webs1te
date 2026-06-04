@@ -2,216 +2,421 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>關卡列表</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CASE FILES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
 
 <style>
-:root{
-    --bg:#070907;
-    --line:#2b442b;
-    --green:#6bff4d;
-    --text:#f5f5f5;
+:root {
+  --bg:        #08090b;
+  --s0:        #0d1110;
+  --s1:        #131916;
+  --green:     #3dff5a;
+  --green-d:   #1a7228;
+  --border:    rgba(61,255,90,.11);
+  --border-hi: rgba(61,255,90,.28);
+  --amber:     #f0a830;
+  --blue:      #5ab4ff;
+  --red:       #ff4560;
+  --text:      #c8e0cc;
+  --muted:     #527558;
+  --faint:     #1b2b1d;
+  --mono:      'Syne Mono', monospace;
+  --disp:      'Bebas Neue', sans-serif;
 }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+/* ── BODY ───────────────────────────── */
+body {
+  min-height: 100vh;
+  font-family: var(--mono);
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 65% 32% at 7% 5%,  rgba(61,255,90,.055), transparent 55%),
+    radial-gradient(ellipse 50% 28% at 94% 96%, rgba(61,255,90,.035), transparent 55%),
+    radial-gradient(circle, rgba(61,255,90,.06) 1px, transparent 1px);
+  background-size: auto, auto, 28px 28px;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 8000;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,.055) 3px, rgba(0,0,0,.055) 4px
+  );
 }
 
-body{
-    min-height:100vh;
-    font-family:sans-serif;
-    color:var(--text);
+/* ── NAVBAR ─────────────────────────── */
+.navbar {
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center;
+  padding: 0 36px; height: 56px; gap: 2px;
+  background: rgba(8,9,11,.95);
+  border-bottom: 1px solid var(--border-hi);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.nav-logo {
+  font-family: var(--disp);
+  font-size: 30px; letter-spacing: .1em;
+  color: var(--green);
+  text-shadow: 0 0 24px rgba(61,255,90,.5);
+  margin-right: auto;
+}
+.nav-sep {
+  width: 1px; height: 22px;
+  background: var(--border-hi);
+  margin: 0 18px; flex-shrink: 0;
+}
+.nav-stat {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 2px; flex-shrink: 0;
+}
+.nav-stat-label { font-size: 9px; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+.nav-stat-val   { font-size: 15px; color: var(--green); }
+.nav-agent-val  { font-size: 15px; color: var(--text); }
 
-    background:
-        radial-gradient(circle at top left, rgba(107,255,77,.15), transparent 40%),
-        radial-gradient(circle at bottom right, rgba(107,255,77,.1), transparent 40%),
-        var(--bg);
-
-    padding:40px;
+/* ── CONTENT ────────────────────────── */
+.content {
+  padding: 52px 44px 96px;
+  max-width: 1200px; margin: 0 auto;
 }
 
-/* HUD */
-.hud{
-    position:fixed;
-    top:20px;
-    right:20px;
-    background:rgba(15,20,15,.9);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:12px 16px;
-    font-size:14px;
-    z-index: 100;
+/* ── SECTION CARD ───────────────────── */
+.section-card {
+  border: 1px solid var(--border);
+  border-top: 2px solid rgba(61,255,90,.38);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 20px;
 }
 
-/* 區塊標題 */
-.section-title{
-    margin:20px 0 10px;
-    font-size:18px;
-    color:#cfcfcf;
+/* main line: green top */
+.section-card.day { border-top-color: rgba(61,255,90,.38); }
+
+/* side missions: amber top */
+.section-card.side { border-top-color: rgba(240,168,48,.42); }
+.section-card.side .section-num { color: rgba(240,168,48,.1); }
+.section-card.side .section-sub { color: rgba(240,168,48,.5); }
+
+/* evidence: blue top */
+.section-card.evidence { border-top-color: rgba(90,180,255,.35); }
+.section-card.evidence .section-num { color: rgba(90,180,255,.1); }
+.section-card.evidence .section-sub { color: rgba(90,180,255,.45); }
+
+.section-header {
+  display: flex; align-items: center;
+  gap: 20px; padding: 18px 22px 16px;
+  background: rgba(61,255,90,.02);
+  border-bottom: 1px solid var(--border);
+}
+.section-card.side .section-header     { background: rgba(240,168,48,.015); }
+.section-card.evidence .section-header { background: rgba(90,180,255,.015); }
+
+.section-num {
+  font-family: var(--disp);
+  font-size: 64px; line-height: 1;
+  color: rgba(61,255,90,.1);
+  letter-spacing: .04em;
+  flex-shrink: 0; user-select: none;
+}
+.section-meta { display: flex; flex-direction: column; gap: 4px; }
+.section-name {
+  font-family: var(--disp);
+  font-size: 44px; letter-spacing: .08em;
+  color: var(--text); line-height: 1;
+}
+.section-sub {
+  font-size: 11px; letter-spacing: .2em;
+  color: var(--muted); text-transform: uppercase;
 }
 
-/* grid */
-.levels{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-    gap:15px;
-    margin-bottom:20px;
+/* ── LEVEL GRID ──────────────────────── */
+.levels {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 8px;
+  padding: 14px;
+  background: rgba(0,0,0,.18);
 }
 
-/* button */
-button{
-    padding:15px;
-    font-size:16px;
-    border:none;
-    border-radius:10px;
-    font-weight:bold;
-    background:rgba(20,25,20,.9);
-    border:1px solid var(--line);
-    color:var(--text);
-    cursor:pointer;
-    transition:.2s;
+/* ── BUTTONS ────────────────────────── */
+button {
+  font-family: var(--mono);
+  font-size: 15px; letter-spacing: .04em;
+  padding: 16px 14px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--s0); color: var(--text);
+  cursor: pointer; text-align: left;
+  position: relative; overflow: hidden;
+  transition: border-color .12s, background .12s, color .12s,
+              transform .1s, box-shadow .12s;
 }
-
-button:hover:not(:disabled){
-    background:var(--green);
-    color:#000;
-    transform:translateY(-2px);
+button::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 2px; height: 100%;
+  background: var(--green-d);
+  transition: background .12s, box-shadow .12s;
 }
+button:hover:not(:disabled) {
+  border-color: var(--border-hi); background: var(--s1); color: var(--green);
+  transform: translateX(3px);
+}
+button:hover:not(:disabled)::before {
+  background: var(--green); box-shadow: 0 0 7px var(--green);
+}
+button:disabled { cursor: default; }
 
-/* 已完成按鈕樣式優化 */
 button.done-btn {
-    border-color: var(--green);
-    color: #a3ffa3;
-    background: rgba(30, 50, 30, 0.4);
+  border-color: rgba(61,255,90,.18);
+  background: rgba(61,255,90,.03); color: var(--muted);
 }
-button.done-btn:hover {
-    background: var(--green);
-    color: #000;
+button.done-btn::before { background: rgba(61,255,90,.4); }
+button.done-btn:hover:not(:disabled) {
+  border-color: var(--border-hi); color: var(--green);
+  background: rgba(61,255,90,.06); transform: translateX(3px);
 }
-
-.divider{
-    height:1px;
-    background:#2b442b;
-    margin:30px 0;
+button.done-btn:hover:not(:disabled)::before {
+  background: var(--green); box-shadow: 0 0 7px var(--green);
 }
 
-.logout{
-    margin-top:40px;
-    width:100%;
-    background:#1a1f1a;
+/* ── LOGOUT ─────────────────────────── */
+.logout-row {
+  margin-top: 56px; padding-top: 20px;
+  border-top: 1px solid var(--faint);
+}
+.logout {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .2em; color: var(--muted);
+  background: transparent;
+  border: 1px solid rgba(255,69,96,.2); border-radius: 3px;
+  padding: 10px 18px; cursor: pointer;
+  text-transform: uppercase;
+  transition: color .18s, border-color .18s, background .18s;
+}
+.logout::before { content: none; }
+.logout:hover:not(:disabled) {
+  color: var(--red); border-color: var(--red);
+  background: rgba(255,69,96,.05);
+  transform: none; box-shadow: none;
 }
 
-.modal{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,.6);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index: 1000;
+/* ── MODAL ──────────────────────────── */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.74);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  display: none; justify-content: center; align-items: center;
+  z-index: 1000;
+}
+.modal-content {
+  width: min(400px, 92vw);
+  background: var(--s0);
+  border: 1px solid var(--border-hi); border-radius: 4px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(61,255,90,.05),
+              0 0 50px rgba(61,255,90,.07),
+              0 36px 80px rgba(0,0,0,.85);
+}
+.modal-chrome {
+  display: flex; align-items: center;
+  padding: 10px 16px; gap: 8px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(61,255,90,.025);
+}
+.modal-chrome-label {
+  font-size: 9px; letter-spacing: .24em; color: var(--muted);
+  text-transform: uppercase; flex: 1;
+}
+.modal-chrome-label::before { content: '// '; color: var(--green-d); }
+.modal-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+.modal-title-area { padding: 16px 16px 2px; }
+#modalTitle {
+  font-family: var(--disp); font-size: 38px;
+  letter-spacing: .1em; color: var(--green); line-height: 1;
+}
+.modal-body { padding: 4px 16px 16px; }
+.modal-description {
+  min-height: 72px; max-height: 200px; overflow-y: auto;
+  margin: 12px 0; padding: 10px 12px;
+  border: 1px solid var(--faint); border-radius: 3px;
+  background: var(--bg); color: var(--text);
+  line-height: 1.85; font-size: 13px; white-space: pre-wrap;
+}
+.modal-description::-webkit-scrollbar { width: 3px; }
+.modal-description::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+#downloadBtn {
+  width: 100%; margin-bottom: 8px; padding: 10px;
+  background: rgba(61,255,90,.05); border-color: rgba(61,255,90,.28);
+  color: var(--green); font-size: 12px; letter-spacing: .12em;
+  text-align: center; text-transform: uppercase;
+}
+#downloadBtn::before { content: none; }
+#downloadBtn:hover:not(:disabled) {
+  background: rgba(61,255,90,.1); border-color: var(--green);
+  color: var(--green); transform: none; box-shadow: 0 0 14px rgba(61,255,90,.1);
 }
 
-.modal-content{
-    width:320px;
-    background:#101410;
-    border:1px solid var(--line);
-    padding:20px;
-    border-radius:12px;
+.modal-content input {
+  width: 100%; padding: 11px 12px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 3px;
+  color: var(--text); font-family: var(--mono); font-size: 15px;
+  letter-spacing: .04em; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.modal-content input::placeholder { color: var(--faint); }
+.modal-content input:focus {
+  border-color: rgba(61,255,90,.5);
+  box-shadow: 0 0 0 3px rgba(61,255,90,.08);
 }
 
-.modal-content h2{
-    margin-bottom:15px;
+.btn-row { display: flex; gap: 8px; margin-top: 8px; }
+.small-btn {
+  flex: 1; padding: 11px 8px;
+  font-family: var(--mono); font-size: 12px;
+  letter-spacing: .14em; text-align: center;
+  border-radius: 3px; text-transform: uppercase;
+}
+#submitBtn {
+  background: var(--green); color: #050a06;
+  border-color: var(--green); font-weight: bold;
+}
+#submitBtn::before { content: none; }
+#submitBtn:hover:not(:disabled) {
+  background: #55ff6e; border-color: #55ff6e; color: #050a06;
+  transform: none; box-shadow: 0 4px 20px rgba(61,255,90,.22);
+}
+#submitBtn:disabled { opacity: .5; }
+.btn-close {
+  background: transparent; border-color: var(--faint); color: var(--muted);
+}
+.btn-close::before { content: none; }
+.btn-close:hover:not(:disabled) {
+  border-color: var(--muted); color: var(--text);
+  background: rgba(255,255,255,.02); transform: none; box-shadow: none;
 }
 
-.modal-content input{
-    width:100%;
-    padding:10px;
-    margin-top:10px;
-    background:#151915;
-    border:1px solid #334433;
-    color:white;
-    border-radius:8px;
-}
-
-.modal-content .btn-row{
-    display:flex;
-    gap:10px;
-    margin-top:10px;
-}
-
-.small-btn{
-    flex:1;
-    padding:10px;
-    font-size:14px;
-}
-.modal-description{
-    min-height:120px;
-    max-height:250px;
-    overflow-y:auto;
-
-    margin-bottom:12px;
-    padding:10px;
-
-    border:1px solid #334433;
-    border-radius:8px;
-
-    background:#151915;
-    color:#ddd;
-    line-height:1.6;
-    font-size:14px;
-    white-space:pre-wrap;
+/* ── RESPONSIVE ─────────────────────── */
+@media (max-width: 640px) {
+  .content { padding: 32px 16px 64px; }
+  .navbar  { padding: 0 16px; }
+  .nav-sep { margin: 0 10px; }
+  .section-name { font-size: 34px; }
+  .section-num  { font-size: 48px; }
 }
 </style>
 </head>
 
 <body>
 
-<div class="hud">
-    <div>ID: <span id="username">---</span></div>
-    <div>Score：0</div>
-    <div>Day1：0/7</div>
-    <div>Day2：0/9</div>
-</div>
+<nav class="navbar">
+  <div class="nav-logo">CASE FILES</div>
+  <div class="nav-stat">
+    <span class="nav-stat-label">Agent</span>
+    <span class="nav-agent-val" id="username">---</span>
+  </div>
+  <div class="nav-sep"></div>
+  <div class="nav-stat">
+    <span class="nav-stat-label">Score</span>
+    <span class="nav-stat-val" id="hud-score">---</span>
+  </div>
+  <div class="nav-sep"></div>
+  <div class="nav-stat">
+    <span class="nav-stat-label">Day 1</span>
+    <span class="nav-stat-val" id="hud-day1">---</span>
+  </div>
+  <div class="nav-sep"></div>
+  <div class="nav-stat">
+    <span class="nav-stat-label">Day 2</span>
+    <span class="nav-stat-val" id="hud-day2">---</span>
+  </div>
+</nav>
 
-<h1>關卡選擇</h1>
+<main class="content">
 
-<div class="section-title">第一天</div>
-<div class="levels" id="day1"></div>
+  <div class="section-card day">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <div class="section-meta">
+        <div class="section-name">第一天</div>
+        <div class="section-sub">Day 1 · Field Operations</div>
+      </div>
+    </div>
+    <div class="levels" id="day1"></div>
+  </div>
 
-<div class="divider"></div>
+  <div class="section-card day">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <div class="section-meta">
+        <div class="section-name">第二天</div>
+        <div class="section-sub">Day 2 · Deep Cover</div>
+      </div>
+    </div>
+    <div class="levels" id="day2"></div>
+  </div>
 
-<div class="section-title">第二天</div>
-<div class="levels" id="day2"></div>
-<div class="divider"></div>
+  <div class="section-card side">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <div class="section-meta">
+        <div class="section-name">支線任務</div>
+        <div class="section-sub">Side Missions · Optional</div>
+      </div>
+    </div>
+    <div class="levels" id="sidequests"></div>
+  </div>
 
-<div class="section-title">支線任務</div>
-<div class="levels" id="sidequests"></div>
+  <div class="section-card evidence">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <div class="section-meta">
+        <div class="section-name">蛛絲馬跡</div>
+        <div class="section-sub">Evidence · Hidden Clues</div>
+      </div>
+    </div>
+    <div class="levels" id="findings"></div>
+  </div>
 
-<div class="divider"></div>
+  <div class="logout-row">
+    <button class="logout" onclick="logout()">⎋ logout</button>
+  </div>
 
-<div class="section-title">蛛絲馬跡</div>
-<div class="levels" id="findings"></div>
-<button class="logout" onclick="logout()">登出</button>
+</main>
 
 <div class="modal" id="modal">
-    <div class="modal-content">
-        <h2 id="modalTitle">關卡</h2>
-
-        <div id="modalDescription" class="modal-description">
-            說明內容
-        </div>
-        
-        <input id="modalInput" placeholder="輸入答案">
-
-        <div class="btn-row">
-            <button id="submitBtn" class="small-btn">Enter</button>
-            <button class="small-btn" onclick="closeModal()">關閉</button>
-        </div>
+  <div class="modal-content">
+    <div class="modal-chrome">
+      <span class="modal-chrome-label">Encrypted Channel</span>
+      <span class="modal-dot"></span>
     </div>
+    <div class="modal-title-area">
+      <h2 id="modalTitle">關卡</h2>
+    </div>
+    <div class="modal-body">
+      <div id="modalDescription" class="modal-description">說明內容</div>
+      <button id="downloadBtn" class="small-btn" style="display:none;">⬇ 下載謎題</button>
+      <input id="modalInput" placeholder="輸入答案">
+      <div class="btn-row">
+        <button id="submitBtn" class="small-btn">Submit</button>
+        <button class="small-btn btn-close" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -232,72 +437,42 @@ const ANSWER_URL = "https://ybcdjizonfdhmbxgwdfb.supabase.co/functions/v1/Answer
 
 let serverState = {
     time: { day1: false, day2: false },
-    progress: { day1: 1, day2: 1, side: 0 }, // 補上 side 預設值
+    progress: { day1: 1, day2: 1, side: 0 },
     score: 0
 };
 
 // ===============================
-function showError(msg) {
-    let el = document.getElementById("toast");
-    if (!el) {
-        el = document.createElement("div");
-        el.id = "toast";
-        el.style.position = "fixed";
-        el.style.top = "20px";
-        el.style.left = "50%";
-        el.style.transform = "translateX(-50%)";
-        el.style.background = "#ff3b3b";
-        el.style.color = "#fff";
-        el.style.padding = "10px 16px";
-        el.style.borderRadius = "10px";
-        el.style.zIndex = "9999";
-        document.body.appendChild(el);
-    }
-
-    el.innerText = msg;
-    el.style.opacity = "1";
-
-    setTimeout(() => {
-        el.style.opacity = "0";
-    }, 2000);
-}
-
+// ── 加新關卡只需改這裡 ──────────────────
 // ===============================
-// fetch state
-// ===============================
-async function fetchState() {
-    try {
-        const res = await fetch(ACTIVE_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: user.username })
-        });
+const DAY1_COUNT = 7;
+const DAY2_COUNT = 9;
 
-        const json = await res.json();
-        if (!json.ok) return;
+const GAS_DOWNLOAD_URL = "https://script.google.com/macros/s/AKfycbw4nER0Cqjbsd7VkaIR1ymdG-0ubALRK9C4kr4JogW60BqtazLBuAPTkFplPeXH3_DL/exec";
+const PUZZLE_CONFIG = {
+    1:  "1lw_hfqBiwkp7Hm9kSeCE2A_9eZvk4nh7",
+    2:  "1N3rSYD2XceD72Me9Z8MFOsalNan-v_Pl",
+    3:  "1Hx0EcUp_ngjOsY65X9IvY_CpRoc0-Ers",
+    4:  "1btsLuEhax3qZeZudrXuIHFl1cmw17R4s",
+    5:  "1ZWLIy1xqTvCW0mvXQOA6q45fFqzf11ow",
+    6:  "1AOluloVVuyFTHtfyYscKamyy2JI9BiRm",
+    8:  "115m9lX3RkeWegkQgJNFJo2UUFAcpX09If",
+    9:  "1WGvu_u5tPRdTbPtU_loJJnM_9nH9myPQ",
+    10: "1lGor2q4xjmsPrr3sZZb_2H1TOwanSzfP",
+    11: "1Xso2I8J1okFQ80puLXTWott2Ah36AINO",
+    12: "17-BVeJFVqKSm7igrdakVRcs_bCntk1Qb",
+    13: "1mM_-2K3yXNGUgkKEqGd0EU4bncJzUKB9",
+    14: "11vtzN9uPoY0gqz6GlUFnXJ5ZKh4dKyRz",
+    15: "1lSN0y8D-quXm1GiVCIwU4-L4RhzscR-",
+    16: "1X1TefpVfbixYfcCIbjv0KocKk16ywDJc"
+};
 
-        serverState.time = json.time;
-        serverState.progress = json.progress;
-        serverState.progress.side = json.progress.side ?? 0; // 確保 side 有值
-        serverState.score = json.score ?? 0;
-
-        renderAll();
-
-    } catch (err) {
-        console.log("fetchState error:", err);
-    }
-}
-
-// ===============================
-// 關卡資料定義
-// ===============================
-const day1Levels = Array.from({ length: 7 }, (_, i) => ({
+const day1Levels = Array.from({ length: DAY1_COUNT }, (_, i) => ({
     name: `第${i + 1}關`,
     id: i + 1,
     day: 1
 }));
 
-const day2Levels = Array.from({ length: 9 }, (_, i) => ({
+const day2Levels = Array.from({ length: DAY2_COUNT }, (_, i) => ({
     name: `第${i + 8}關`,
     id: i + 8,
     day: 2
@@ -316,6 +491,50 @@ const findingLevels = [
     { id: 23, name: "乙", description: "找到我的線人，他可能就在路上了。" },
     { id: 24, name: "丙", description: "我那時手頭拮据，於是便將這份線索賣給了—" }
 ];
+// ───────────────────────────────────────
+
+// ===============================
+function showError(msg) {
+    let el = document.getElementById("toast");
+    if (!el) {
+        el = document.createElement("div");
+        el.id = "toast";
+        el.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);" +
+            "background:#ff4560;color:#fff;padding:10px 18px;border-radius:4px;" +
+            "font-family:'Syne Mono',monospace;font-size:13px;letter-spacing:.06em;" +
+            "z-index:9999;transition:opacity .3s;";
+        document.body.appendChild(el);
+    }
+    el.innerText = msg;
+    el.style.opacity = "1";
+    setTimeout(() => { el.style.opacity = "0"; }, 2000);
+}
+
+// ===============================
+// fetch state
+// ===============================
+async function fetchState() {
+    try {
+        const res = await fetch(ACTIVE_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: user.username })
+        });
+
+        const json = await res.json();
+        if (!json.ok) return;
+
+        serverState.time = json.time;
+        serverState.progress = json.progress;
+        serverState.progress.side = json.progress.side ?? 0;
+        serverState.score = json.score ?? 0;
+
+        renderAll();
+
+    } catch (err) {
+        console.log("fetchState error:", err);
+    }
+}
 
 let currentLevel = null;
 
@@ -323,13 +542,9 @@ let currentLevel = null;
 // 初始化建立按鈕 (DOM 產生)
 // ===============================
 function initButtons() {
-    // 主線 Day 1
     day1Levels.forEach(l => createMainLevelBtn(document.getElementById("day1"), l));
-    // 主線 Day 2
     day2Levels.forEach(l => createMainLevelBtn(document.getElementById("day2"), l));
-    // 支線任務 (17~21)
     sideQuestLevels.forEach(l => createBitmaskLevelBtn(document.getElementById("sidequests"), l));
-    // 蛛絲馬跡 (22~24)
     findingLevels.forEach(l => createBitmaskLevelBtn(document.getElementById("findings"), l));
 }
 
@@ -340,7 +555,7 @@ function createMainLevelBtn(container, level) {
         const state = getLevelState(level);
         if (state === "LOCK") return;
         currentLevel = level;
-        openModal(level.name);
+        openModal(level.name, level.id);
     };
     container.appendChild(btn);
 }
@@ -358,10 +573,14 @@ function createBitmaskLevelBtn(container, level) {
 // 答案提交
 // ===============================
 async function submitAnswer() {
-    const input = document.querySelector(".modal-content input");
+    const input = document.getElementById("modalInput");
+    const btn = document.getElementById("submitBtn");
     const answer = input.value.trim();
 
     if (!currentLevel || !answer) return;
+
+    btn.disabled = true;
+    btn.innerText = "...";
 
     try {
         const res = await fetch(ANSWER_URL, {
@@ -382,11 +601,13 @@ async function submitAnswer() {
             return;
         }
 
-        // 答對後重新載入以更新最新進度與分數
         location.reload();
 
     } catch (err) {
         showError("伺服器錯誤");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Submit";
     }
 }
 
@@ -414,8 +635,8 @@ function getLevelState(level) {
 function renderAll() {
     renderMainGroup("#day1", day1Levels);
     renderMainGroup("#day2", day2Levels);
-    renderBitmaskGroup("#sidequests", sideQuestLevels); // 渲染支線
-    renderBitmaskGroup("#findings", findingLevels);     // 渲染蛛絲馬跡
+    renderBitmaskGroup("#sidequests", sideQuestLevels);
+    renderBitmaskGroup("#findings", findingLevels);
     renderHUD();
 }
 
@@ -457,16 +678,12 @@ function renderBitmaskGroup(selector, levels) {
 
     buttons.forEach((btn, idx) => {
         const level = levels[idx];
-        
-        // 算出該關卡對應的位元 (例如 17 關就是 1 << 0, 22 關就是 1 << 5)
         const levelBit = 1 << (level.id - 17);
-        
-        // 使用 Bitwise AND 檢查該位元是否為 1
         const isDone = (sideMask & levelBit) !== 0;
 
         if (isDone) {
             btn.innerText = `✔ ${level.name} (已完成)`;
-            btn.classList.add("done-btn"); // 加入綠框特殊樣式
+            btn.classList.add("done-btn");
         } else {
             btn.innerText = level.name;
             btn.classList.remove("done-btn");
@@ -476,16 +693,13 @@ function renderBitmaskGroup(selector, levels) {
 
 // 渲染 HUD 頂部狀態列
 function renderHUD() {
-    document.querySelector(".hud").innerHTML = `
-        <div>ID: ${user.username}</div>
-        <div>Score：${serverState.score}</div>
-        <div>Day1：${
-            serverState.time.day1 ? (serverState.progress.day1 - 1) : "未開放"
-        }/7</div>
-        <div>Day2：${
-            serverState.time.day2 ? (serverState.progress.day2 - 1) : "未開放"
-        }/9</div>
-    `;
+    document.getElementById("hud-score").innerText = serverState.score;
+    document.getElementById("hud-day1").innerText = serverState.time.day1
+        ? `${serverState.progress.day1 - 1}/${DAY1_COUNT}`
+        : "未開放";
+    document.getElementById("hud-day2").innerText = serverState.time.day2
+        ? `${serverState.progress.day2 - 1}/${DAY2_COUNT}`
+        : "未開放";
 }
 
 // ===============================
@@ -495,11 +709,20 @@ const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
 const modalDescription = document.getElementById("modalDescription");
 
-function openModal(title) {
+function openModal(title, levelId) {
     modal.style.display = "flex";
     modalTitle.innerText = title;
     modalDescription.innerText = "請輸入本關卡答案。";
     document.getElementById("modalInput").value = "";
+
+    const folderId = PUZZLE_CONFIG[levelId];
+    const dlBtn = document.getElementById("downloadBtn");
+    if (folderId) {
+        dlBtn.style.display = "";
+        dlBtn.onclick = () => window.open(`${GAS_DOWNLOAD_URL}?id=${folderId}`, "_blank");
+    } else {
+        dlBtn.style.display = "none";
+    }
 }
 
 function openTaskModal(title, description, id) {
@@ -507,12 +730,9 @@ function openTaskModal(title, description, id) {
     modalTitle.innerText = title;
     modalDescription.innerText = description;
     document.getElementById("modalInput").value = "";
+    document.getElementById("downloadBtn").style.display = "none";
 
-    // 指定當前操作的關卡資訊為此支線/足跡
-    currentLevel = {
-        id: id,
-        day: 3 
-    };
+    currentLevel = { id, type: "side" };
 }
 
 function closeModal() {
@@ -529,7 +749,7 @@ function logout() {
 
 document.getElementById("submitBtn").onclick = submitAnswer;
 
-document.querySelector(".modal-content input").addEventListener("keydown", (e) => {
+document.getElementById("modalInput").addEventListener("keydown", (e) => {
     if (e.key === "Enter") submitAnswer();
 });
 
