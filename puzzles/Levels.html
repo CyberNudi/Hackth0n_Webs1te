@@ -799,7 +799,7 @@ function openTaskModal(title, description, id, mode = "play") {
     if (mode === "review") {
         input.style.display = "none";
         submit.style.display = "none";
-        modalDescription.innerText = "✔ 已完成關卡（可重新查看內容與下載）\n" + description;
+        modalDescription.innerText = "✔ 已完成關卡（可重新查看內容）\n" + description;
     } else {
         modalDescription.innerText = description;
     }
