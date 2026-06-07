@@ -720,6 +720,15 @@ function renderBitmaskGroup(selector, levels) {
         if (isDone) {
             btn.innerText = `✔ ${level.name} (已完成)`;
             btn.classList.add("done-btn");
+            // 讓已完成關卡仍然可點
+            btn.onclick = () => {
+                currentLevel = level;
+                openTaskModal(level.name, level.id , "review");
+        
+                // 強制進入「回顧模式」
+                document.getElementById("modalInput").style.display = "none";
+                document.getElementById("submitBtn").style.display = "none";
+            };
         } else {
             btn.innerText = level.name;
             btn.classList.remove("done-btn");
@@ -780,7 +789,14 @@ function openModal(title, levelId, mode = "play") {
 function openTaskModal(title, description, id) {
     modal.style.display = "flex";
     modalTitle.innerText = title;
-    modalDescription.innerText = description;
+    if (mode === "review") {
+        input.style.display = "none";
+        submit.style.display = "none";
+        modalDescription.innerText = "✔ 已完成關卡（可重新查看內容與下載）" + description;
+    } else {
+        modalDescription.innerText = description;
+    }
+    
     document.getElementById("modalInput").value = "";
     document.getElementById("downloadBtn").style.display = "none";
 
