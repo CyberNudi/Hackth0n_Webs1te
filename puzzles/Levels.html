@@ -786,7 +786,7 @@ function openModal(title, levelId, mode = "play") {
     }
 }
 
-function openTaskModal(title, description, id) {
+function openTaskModal(title, description, id, mode = "play") {
     modal.style.display = "flex";
     modalTitle.innerText = title;
     if (mode === "review") {
