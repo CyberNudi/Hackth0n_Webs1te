@@ -587,7 +587,7 @@ function createMainLevelBtn(container, level) {
 
 function createBitmaskLevelBtn(container, level) {
     const btn = document.createElement("button");
-    btn.innerText = level.description;
+    btn.innerText = level.name;
     btn.onclick = () => {
         openTaskModal(level.name, level.description, level.id);
     };
@@ -723,7 +723,7 @@ function renderBitmaskGroup(selector, levels) {
             // 讓已完成關卡仍然可點
             btn.onclick = () => {
                 currentLevel = level;
-                openTaskModal(level.name, level.id , "review");
+                openTaskModal(level.name, "",level.id , "review");
         
                 // 強制進入「回顧模式」
                 document.getElementById("modalInput").style.display = "none";
