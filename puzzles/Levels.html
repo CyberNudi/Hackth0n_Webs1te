@@ -82,6 +82,19 @@ body::before {
 .nav-stat-val   { font-size: 15px; color: var(--green); }
 .nav-agent-val  { font-size: 15px; color: var(--text); }
 
+.password-btn{
+  padding:4px 10px;
+  font-size:11px;
+  background:rgba(61,255,90,.05);
+  color:var(--green);
+  border:1px solid var(--border-hi);
+  border-radius:3px;
+  cursor:pointer;
+}
+
+.password-btn:hover{
+  background:rgba(61,255,90,.12);
+}
 /* ── CONTENT ────────────────────────── */
 .content {
   padding: 52px 44px 96px;
@@ -329,6 +342,15 @@ button.done-btn:hover:not(:disabled)::before {
     <span class="nav-stat-label">Agent</span>
     <span class="nav-agent-val" id="username">---</span>
   </div>
+  
+  <div class="nav-sep"></div>
+  
+  <div class="nav-stat">
+    <span class="nav-stat-label">Password</span>
+    <button id="showPasswordBtn" class="password-btn">
+        View
+    </button>
+  </div>
   <div class="nav-sep"></div>
   <div class="nav-stat">
     <span class="nav-stat-label">Score</span>
@@ -439,6 +461,7 @@ let serverState = {
     time: { day1: false, day2: false },
     progress: { day1: 1, day2: 1, side: 0 },
     score: 0
+    password: ""
 };
 
 // ===============================
@@ -529,6 +552,7 @@ async function fetchState() {
         serverState.progress = json.progress;
         serverState.progress.side = json.progress.side ?? 0;
         serverState.score = json.score ?? 0;
+        serverState.password = json.password ?? "";
 
         renderAll();
 
@@ -753,7 +777,18 @@ document.getElementById("submitBtn").onclick = submitAnswer;
 document.getElementById("modalInput").addEventListener("keydown", (e) => {
     if (e.key === "Enter") submitAnswer();
 });
+  
+document.getElementById("showPasswordBtn").addEventListener("click", () => {
 
+    if(!serverState.password){
+        showError("無法取得密碼");
+        return;
+    }
+
+    alert(
+      `帳號：${user.username}\n密碼：${serverState.password}`
+    );
+});
 // 執行初始化與載入
 initButtons();
 fetchState();
