@@ -755,8 +755,6 @@ const modalTitle = document.getElementById("modalTitle");
 const modalDescription = document.getElementById("modalDescription");
 
 function openModal(title, levelId, mode = "play") {
-    document.getElementById("modalInput").style.display = "";
-    document.getElementById("submitBtn").style.display = "";
     modal.style.display = "flex";
     modalTitle.innerText = title;
 
@@ -787,6 +785,15 @@ function openModal(title, levelId, mode = "play") {
 }
 
 function openTaskModal(title, description, id, mode = "play") {
+    const input = document.getElementById("modalInput");
+    const submit = document.getElementById("submitBtn");
+    const dlBtn = document.getElementById("downloadBtn");
+
+    // reset
+    input.style.display = "";
+    submit.style.display = "";
+    dlBtn.style.display = "none";
+  
     modal.style.display = "flex";
     modalTitle.innerText = title;
     if (mode === "review") {
@@ -796,9 +803,6 @@ function openTaskModal(title, description, id, mode = "play") {
     } else {
         modalDescription.innerText = description;
     }
-    
-    document.getElementById("modalInput").value = "";
-    document.getElementById("downloadBtn").style.display = "none";
 
     currentLevel = { id, type: "side" };
 }
