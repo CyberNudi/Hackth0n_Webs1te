@@ -587,7 +587,7 @@ function createMainLevelBtn(container, level) {
 
 function createBitmaskLevelBtn(container, level) {
     const btn = document.createElement("button");
-    btn.innerText = level.name;
+    btn.innerText = level.description;
     btn.onclick = () => {
         openTaskModal(level.name, level.description, level.id);
     };
