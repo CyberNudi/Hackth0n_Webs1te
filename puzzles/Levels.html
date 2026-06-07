@@ -735,6 +735,8 @@ const modalTitle = document.getElementById("modalTitle");
 const modalDescription = document.getElementById("modalDescription");
 
 function openModal(title, levelId) {
+    document.getElementById("modalInput").style.display = "";
+    document.getElementById("submitBtn").style.display = "";
     modal.style.display = "flex";
     modalTitle.innerText = title;
     modalDescription.innerText = "請輸入本關卡答案。";
@@ -763,7 +765,43 @@ function openTaskModal(title, description, id) {
 function closeModal() {
     modal.style.display = "none";
 }
+//==================
+// 密碼顯示
+//==================
+function openPasswordModal() {
+    if (!serverState.password) {
+        showError("無法取得密碼");
+        return;
+    }
 
+    modal.style.display = "flex";
+
+    modalTitle.innerText = "Agent Credentials";
+
+    modalDescription.innerText =
+        `帳號：${user.username}\n密碼：${serverState.password}`;
+
+    document.getElementById("modalInput").style.display = "none";
+    document.getElementById("submitBtn").style.display = "none";
+    document.getElementById("downloadBtn").style.display = "none";
+
+    // 加一個關閉按鈕保險（避免 UX 卡死）
+    let closeBtn = document.getElementById("passwordCloseBtn");
+
+    if (!closeBtn) {
+        closeBtn = document.createElement("button");
+        closeBtn.id = "passwordCloseBtn";
+        closeBtn.className = "small-btn btn-close";
+        closeBtn.innerText = "Close";
+        closeBtn.onclick = () => {
+            document.getElementById("modalInput").style.display = "";
+            document.getElementById("submitBtn").style.display = "";
+            closeModal();
+        };
+
+        document.querySelector(".btn-row").appendChild(closeBtn);
+    }
+}
 // ===============================
 // 登出與事件繫結
 // ===============================
@@ -785,9 +823,7 @@ document.getElementById("showPasswordBtn").addEventListener("click", () => {
         return;
     }
 
-    alert(
-      `帳號：${user.username}\n密碼：${serverState.password}`
-    );
+    openPasswordModal();
 });
 // 執行初始化與載入
 initButtons();
