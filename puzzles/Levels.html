@@ -684,9 +684,20 @@ function renderMainGroup(selector, levels) {
         }
 
         if (state === "DONE") {
-            btn.disabled = true;
-            btn.innerText = "✔ 已完成";
-            btn.style.opacity = "0.7";
+            btn.disabled = false;
+            btn.innerText = `✔ ${level.name}`;
+            btn.style.opacity = "0.85";
+            btn.classList.add("done-btn");
+        
+            // 讓已完成關卡仍然可點
+            btn.onclick = () => {
+                currentLevel = level;
+                openModal(level.name, level.id , "review");
+        
+                // 強制進入「回顧模式」
+                document.getElementById("modalInput").style.display = "none";
+                document.getElementById("submitBtn").style.display = "none";
+            };
         }
 
         if (state === "SOLVE") {
@@ -734,21 +745,35 @@ const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
 const modalDescription = document.getElementById("modalDescription");
 
-function openModal(title, levelId) {
+function openModal(title, levelId, mode = "play") {
     document.getElementById("modalInput").style.display = "";
     document.getElementById("submitBtn").style.display = "";
     modal.style.display = "flex";
     modalTitle.innerText = title;
-    modalDescription.innerText = "請輸入本關卡答案。";
+
     document.getElementById("modalInput").value = "";
 
-    const folderId = PUZZLE_CONFIG[levelId];
+    const input = document.getElementById("modalInput");
+    const submit = document.getElementById("submitBtn");
     const dlBtn = document.getElementById("downloadBtn");
+
+    // reset
+    input.style.display = "";
+    submit.style.display = "";
+    dlBtn.style.display = "none";
+
+    if (mode === "review") {
+        input.style.display = "none";
+        submit.style.display = "none";
+        modalDescription.innerText = "✔ 已完成關卡（可重新查看內容與下載）";
+    } else {
+        modalDescription.innerText = "請輸入本關卡答案。";
+    }
+
+    const folderId = PUZZLE_CONFIG[levelId];
     if (folderId) {
         dlBtn.style.display = "";
         dlBtn.onclick = () => window.open(`${GAS_DOWNLOAD_URL}?id=${folderId}`, "_blank");
-    } else {
-        dlBtn.style.display = "none";
     }
 }
 
